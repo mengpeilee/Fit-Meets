@@ -87,20 +87,6 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
-      buildTypes {
-        debug {
-           
-            buildConfigField "String", "CODEPUSH_KEY", '"5yVpXG8xB4Fp7ZgVgHpp8Je8_kMzNkgl2i33W"'
-            
-        }
-
-        release {
-            
-            buildConfigField "String", "CODEPUSH_KEY", '"VX6E7bLkaXpnj03nuO8J5ETh9zZpNkgl2i33W"'
-            
-        }
-    }
-
     defaultConfig {
         applicationId "com.userinterface"
         minSdkVersion 16
@@ -120,9 +106,16 @@ android {
         }
     }
     buildTypes {
+        debug {
+           
+            buildConfigField "String", "CODEPUSH_KEY", '"5yVpXG8xB4Fp7ZgVgHpp8Je8_kMzNkgl2i33W"'
+            
+        }
+
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            buildConfigField "String", "CODEPUSH_KEY", '"VX6E7bLkaXpnj03nuO8J5ETh9zZpNkgl2i33W"'
         }
     }
     // applicationVariants are e.g. debug, release
