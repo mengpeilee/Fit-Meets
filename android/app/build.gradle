@@ -66,6 +66,7 @@ import com.android.build.OutputFile
  */
 
 apply from: "../../node_modules/react-native/react.gradle"
+apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -85,6 +86,20 @@ def enableProguardInReleaseBuilds = false
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
+
+      buildTypes {
+        debug {
+           
+            buildConfigField "String", "CODEPUSH_KEY", '"5yVpXG8xB4Fp7ZgVgHpp8Je8_kMzNkgl2i33W"'
+            
+        }
+
+        release {
+            
+            buildConfigField "String", "CODEPUSH_KEY", '"VX6E7bLkaXpnj03nuO8J5ETh9zZpNkgl2i33W"'
+            
+        }
+    }
 
     defaultConfig {
         applicationId "com.userinterface"
@@ -133,6 +148,7 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':reactnativemapboxgl')
     compile project(':react-native-linear-gradient')
+    compile project(':react-native-code-push')
 }
 
 // Run this once to be able to run the application with BUCK
