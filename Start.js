@@ -19,9 +19,11 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 
 import SexualChoose from './SexualChoose';
+import Fitbit from './Fitbit';
 import Main from './Main';
 
 var start = require('./img/start.png');
+var fitbitLogo = require('./img/ft.png');
 var already = false;
 
 export  default  class  Start extends  Component{
@@ -52,6 +54,18 @@ export  default  class  Start extends  Component{
      
         
   }
+
+  _pressButtonFitbit() {
+
+    const { navigator } = this.props;
+      if(navigator) {
+          navigator.push({
+            name: 'Fitbit',
+            component: Fitbit,
+          })
+      }    
+
+  }
   
   render() {
     return (
@@ -65,6 +79,11 @@ export  default  class  Start extends  Component{
                   </View>
                 </ TouchableOpacity>
               </View>
+                <TouchableOpacity onPress={this._pressButtonFitbit.bind(this)}>
+                  <View style={styles.img}>
+                    <Image style={styles.img_ft} source={fitbitLogo}/> 
+                  </View>
+                </TouchableOpacity>
             </View>
           </LinearGradient>
           </View>
@@ -92,7 +111,11 @@ const styles = StyleSheet.create({
   },
   img: {
       flex: 1,
-      resizeMode:'contain',
+      justifyContent: 'center',
+      alignItems: 'center',
   },
-    
+  img_ft: {
+    resizeMode:'contain',
+    height: 30,
+  },
 });
