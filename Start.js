@@ -21,12 +21,22 @@ import LinearGradient from 'react-native-linear-gradient';
 import SexualChoose from './SexualChoose';
 import Fitbit from './Fitbit';
 import Main from './Main';
+//import { OAuth, getDistance, getSteps, getHeartrate } from './OauthFit';
+//import config from './config.js';
+
 
 var start = require('./img/start.png');
 var fitbitLogo = require('./img/ft.png');
 var already = false;
 
 export  default  class  Start extends  Component{
+
+  /*componentDidMount() {
+    OAuth(config.client_id, getDistance);
+    OAuth(config.client_id, getSteps);
+    OAuth(config.client_id, getHeartrate);
+  }*/
+
 
   _pressButton() {
 

@@ -16,10 +16,7 @@ import {
   View
 } from 'react-native';
 
-var ab = 'test';
-var token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0Q0pZRFQiLCJhdWQiOiIyMjdRTk0iLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd3BybyB3c2xlIHdhY3QiLCJleHAiOjE0NzUyMzYyODIsImlhdCI6MTQ3NTE1NzA4Mn0.KTK0WeU4CD-O25VHV06Q601497HzPHtxIGCZ1MBOtFg';
-
-function OAuth(client_id, cb) {
+export function OAuth(client_id, cb) {
 
    // Listen to redirection
   Linking.addEventListener('url', handleUrl);
@@ -59,7 +56,7 @@ function OAuth(client_id, cb) {
   Linking.openURL(oauthurl).catch(err => console.error('Error processing linking', err));
 }
 
-function getDistance(access_token) {
+export function getDistance(access_token) {
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/distance/date/today/1d.json',
     {
@@ -78,8 +75,7 @@ function getDistance(access_token) {
   });
 }
 
-function getSteps(access_token) {
-
+export function getSteps(access_token) {
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/steps/date/today/1d.json',
     {
@@ -92,15 +88,13 @@ function getSteps(access_token) {
   ).then((steps) => {
     return steps.json()
   }).then((steps) => {
-    var abc = JSON.stringify(steps)
-    console.log('abc = '+abc)
     console.log(`steps: ${JSON.stringify(steps)}`);
   }).catch((err) => {
     console.error('Error: ', err);
   });
 }
 
-function getHeartrate(access_token) {
+export function getHeartrate(access_token) {
   fetch(
      'https://api.fitbit.com/1/user/-/activities/heart/date/today/1d/1min.json',
     {
@@ -117,38 +111,23 @@ function getHeartrate(access_token) {
   }).catch((err) => {
     console.error('Error: ', err);
   });
-  
 }
 
 export default  class Fitbit extends Component {
 
-  state = {
-        test: null,
-        //tst2: null,
+
+  componentDidMount() {
+    OAuth(config.client_id, getDistance);
+    OAuth(config.client_id, getSteps);
+    OAuth(config.client_id, getHeartrate);
   }
 
-  componentWillMount() {
-    //OAuth(config.client_id, getDistance);
-    //OAuth(config.client_id, getSteps);
-    //OAuth(config.client_id, getHeartrate);
-    getDistance(token);
-    getHeartrate(token);
-    var str = getSteps(token)
-    console.log(str);
-
-    this.setState({
-      test: ab,
-    });
-
-  }
-
-  
 
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          {this.state.test}
+          {steps.activities-tracker-steps.value}
         </Text>
         <Text style={styles.instructions}>
           Do you know who I am?
