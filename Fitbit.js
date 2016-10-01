@@ -16,9 +16,6 @@ import {
   View
 } from 'react-native';
 
-var ab = 'test';
-var token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0Q0pZRFQiLCJhdWQiOiIyMjdRTk0iLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd3BybyB3c2xlIHdhY3QiLCJleHAiOjE0NzUyMzYyODIsImlhdCI6MTQ3NTE1NzA4Mn0.KTK0WeU4CD-O25VHV06Q601497HzPHtxIGCZ1MBOtFg';
-
 function OAuth(client_id, cb) {
 
    // Listen to redirection
@@ -79,7 +76,7 @@ function getDistance(access_token) {
 }
 
 function getSteps(access_token) {
-
+  Fitbit.setState(" ")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/steps/date/today/1d.json',
     {
@@ -92,12 +89,17 @@ function getSteps(access_token) {
   ).then((steps) => {
     return steps.json()
   }).then((steps) => {
-    var abc = JSON.stringify(steps)
-    console.log('abc = '+abc)
-    console.log(`steps: ${JSON.stringify(steps)}`);
+    str = JSON.stringify(steps)
+    console.log('steps : '+str)
+    console.log(Fitbit.getState())
+    console.log(Fitbit.setState(steps['activities-tracker-steps'][0]['value']))
+    console.log(Fitbit.getState())
+    
   }).catch((err) => {
     console.error('Error: ', err);
   });
+  
+
 }
 
 function getHeartrate(access_token) {
@@ -117,38 +119,53 @@ function getHeartrate(access_token) {
   }).catch((err) => {
     console.error('Error: ', err);
   });
-  
+
 }
 
 export default  class Fitbit extends Component {
 
-  state = {
-        test: null,
-        //tst2: null,
+  
+
+  constructor(props) {
+    super(props);
+    // this.state = {showText: true};
+    this.state = {showText: true};
+    // Toggle the state every second
+    setInterval(() => {
+      this.setState({ showText: !this.state.showText });
+    }, 1000);
+    
   }
 
+  static state = {
+        test: 'a',
+
+  }
+  
+  static setState(a){
+    this.state.test = a
+  }
+
+  static getState(){
+    return this.state.test;
+  }
+
+
   componentWillMount() {
-    //OAuth(config.client_id, getDistance);
-    //OAuth(config.client_id, getSteps);
-    //OAuth(config.client_id, getHeartrate);
-    getDistance(token);
-    getHeartrate(token);
-    var str = getSteps(token)
-    console.log(str);
-
-    this.setState({
-      test: ab,
-    });
-
+    OAuth(config.client_id, getDistance);
+    OAuth(config.client_id, getSteps);
+    OAuth(config.client_id, getHeartrate);
+    
   }
 
   
 
   render() {
+    
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          {this.state.test}
+          { Fitbit.getState() }
         </Text>
         <Text style={styles.instructions}>
           Do you know who I am?
