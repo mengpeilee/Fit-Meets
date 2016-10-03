@@ -18,6 +18,7 @@ import {
 
 function OAuth(client_id, cb) {
 
+
    // Listen to redirection
   Linking.addEventListener('url', handleUrl);
   function handleUrl(event){
@@ -29,15 +30,9 @@ function OAuth(client_id, cb) {
     const query = qs.parse(query_string);
     console.log(`query: ${JSON.stringify(query)}`);
 
-    cb(query.access_token);
-
     const userid = query.user_id
 
-    /*if (query.state === state) {
-      cb(query.code, getProfileData, 'access_token');
-    } else {
-      console.error('Error authorizing oauth redirection');
-    }*/
+    cb(query.access_token);
   }
 
 
@@ -49,7 +44,6 @@ function OAuth(client_id, cb) {
               scope: 'heartrate activity profile sleep',
               redirect_uri: 'mppy://',
               expires_in: '31536000',
-              //state,
             });
   console.log(oauthurl);
 
@@ -57,6 +51,7 @@ function OAuth(client_id, cb) {
 }
 
 function getDistance(access_token) {
+  Fitbit.setStateDistance("loading...")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/distance/date/today/1d.json',
     {
@@ -69,14 +64,18 @@ function getDistance(access_token) {
   ).then((distance) => {
     return distance.json()
   }).then((distance) => {
-    console.log(`distance: ${JSON.stringify(distance)}`);
+    str = JSON.stringify(distance)
+    console.log('distance : '+str)
+    console.log(Fitbit.getStateDistance())
+    console.log(Fitbit.setStateDistance(distance['activities-tracker-distance'][0]['value']))
+    console.log(Fitbit.getStateDistance())
   }).catch((err) => {
     console.error('Error: ', err);
   });
 }
 
 function getSteps(access_token) {
-  Fitbit.setState(" ")
+  Fitbit.setStateStep("loading...")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/steps/date/today/1d.json',
     {
@@ -91,9 +90,9 @@ function getSteps(access_token) {
   }).then((steps) => {
     str = JSON.stringify(steps)
     console.log('steps : '+str)
-    console.log(Fitbit.getState())
-    console.log(Fitbit.setState(steps['activities-tracker-steps'][0]['value']))
-    console.log(Fitbit.getState())
+    console.log(Fitbit.getStateStep())
+    console.log(Fitbit.setStateStep(steps['activities-tracker-steps'][0]['value']))
+    console.log(Fitbit.getStateStep())
     
   }).catch((err) => {
     console.error('Error: ', err);
@@ -124,7 +123,7 @@ function getHeartrate(access_token) {
 
 export default  class Fitbit extends Component {
 
-  
+
 
   constructor(props) {
     super(props);
@@ -137,17 +136,28 @@ export default  class Fitbit extends Component {
     
   }
 
+
+
   static state = {
-        test: 'a',
+        step: ' ',
+        dis: ' ',
 
   }
   
-  static setState(a){
-    this.state.test = a
+  static setStateStep(a){
+    this.state.step = a
   }
 
-  static getState(){
-    return this.state.test;
+  static setStateDistance(a){
+    this.state.dis = a
+  }
+
+  static getStateStep(){
+    return this.state.step;
+  }
+
+  static getStateDistance(){
+    return this.state.dis;
   }
 
 
@@ -165,10 +175,10 @@ export default  class Fitbit extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          { Fitbit.getState() }
+          {Fitbit.getStateDistance()}
         </Text>
         <Text style={styles.instructions}>
-          Do you know who I am?
+          {Fitbit.getStateStep()}
         </Text>
         <Text style={styles.instructions}>
           I am a hero!
