@@ -43,7 +43,7 @@ function OAuth(client_id, cb) {
               response_type: 'token',
               scope: 'heartrate activity profile sleep',
               redirect_uri: 'mppy://',
-              expires_in: '31536000',
+              expires_in: '31536000'
             });
   console.log(oauthurl);
 
@@ -102,6 +102,7 @@ function getSteps(access_token) {
 }
 
 function getHeartrate(access_token) {
+  Fitbit.setStateHeart("loading...")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/heart/date/today/1d/1min.json',
     {
@@ -114,7 +115,9 @@ function getHeartrate(access_token) {
   ).then((heartrate) => {
     return heartrate.json()
   }).then((heartrate) => {
-    console.log(`heartrate: ${JSON.stringify(heartrate)}`);
+
+    Fitbit.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
+    //console.log(heartrate['activities-heart-intraday']['dataset'].length);
   }).catch((err) => {
     console.error('Error: ', err);
   });
@@ -132,7 +135,7 @@ export default  class Fitbit extends Component {
     // Toggle the state every second
     setInterval(() => {
       this.setState({ showText: !this.state.showText });
-    }, 1000);
+    }, 10000);
     
   }
 
@@ -141,15 +144,20 @@ export default  class Fitbit extends Component {
   static state = {
         step: ' ',
         dis: ' ',
+        heart:' '
 
   }
   
   static setStateStep(a){
-    this.state.step = a
+    this.state.step = a;
   }
 
   static setStateDistance(a){
-    this.state.dis = a
+    this.state.dis = a;
+  }
+
+  static setStateHeart(a){
+    this.state.heart = a;
   }
 
   static getStateStep(){
@@ -158,6 +166,10 @@ export default  class Fitbit extends Component {
 
   static getStateDistance(){
     return this.state.dis;
+  }
+
+  static getStateHeart(){
+    return this.state.heart;
   }
 
 
@@ -181,7 +193,7 @@ export default  class Fitbit extends Component {
           {Fitbit.getStateStep()}
         </Text>
         <Text style={styles.instructions}>
-          I am a hero!
+          {Fitbit.getStateHeart()}
         </Text>
       </View>
     );

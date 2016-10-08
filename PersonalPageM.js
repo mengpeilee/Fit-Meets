@@ -19,13 +19,19 @@ import Firebase from "firebase";
 
 import AchievementM from './AchievementM';
 
+//import bpm from './img/personal/bpmNormal.gif';
+import bpm from './img/personal/bpmFast.gif';
+//import bpm from './img/personal/bpmFaster.gif';
+
+var user = 'yuko99';
+
 export  default  class  PersonalPageM  extends  Component {
 
   constructor(props){
     super(props);
 
     var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
-    this.itemsRef = myFirebaseRef.child('user/yuko99'); // child *********
+    this.itemsRef = myFirebaseRef.child('user/' + user); // child *********
 
     this.state= {
       doAvatar: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
@@ -128,7 +134,7 @@ export  default  class  PersonalPageM  extends  Component {
                   <View style={styles.icon_1}>
                     <Image
                       style={styles.icon}
-                      source={require('./img/personal/bpm.png')}
+                      source={bpm}
                     />
                   </View>
                 </View>

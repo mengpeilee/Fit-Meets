@@ -12,12 +12,117 @@ import {
   Image,
   TouchableOpacity,
   ListView,
+  Linking,
   Navigator,
 } from 'react-native';
 
 import Firebase from "firebase";
-
+import qs from 'qs';
+import config from './config.js';
 import AchievementW from './AchievementW';
+
+//import bpm from './img/personal/bpmNormal.gif';
+import bpm from './img/personal/bpmFast.gif';
+//import bpm from './img/personal/bpmFaster.gif';
+
+var user = 'yuko99';
+
+function OAuth(client_id, cb) {
+
+
+   // Listen to redirection
+  Linking.addEventListener('url', handleUrl);
+  function handleUrl(event){
+    console.log(event.url);
+    Linking.removeEventListener('url', handleUrl);
+    const [, query_string] = event.url.match(/\#(.*)/);
+    console.log(query_string);
+
+    const query = qs.parse(query_string);
+    console.log(`query: ${JSON.stringify(query)}`);
+
+    const userid = query.user_id
+
+    cb(query.access_token);
+  }
+
+
+   // Call OAuth
+  const oauthurl = 'https://www.fitbit.com/oauth2/authorize?'+
+            qs.stringify({
+              client_id,
+              response_type: 'token',
+              scope: 'heartrate activity profile sleep',
+              redirect_uri: 'mppy://',
+              expires_in: '31536000',
+            });
+  console.log(oauthurl);
+
+  Linking.openURL(oauthurl).catch(err => console.error('Error processing linking', err));
+}
+
+function getDistance(access_token) {
+  PersonalPageW.setStateDistance("loading...")
+  fetch(
+     'https://api.fitbit.com/1/user/-/activities/tracker/distance/date/today/1d.json',
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`
+      },
+
+    }
+  ).then((distance) => {
+    return distance.json()
+  }).then((distance) => {
+    PersonalPageW.setStateDistance(Number(distance['activities-tracker-distance'][0]['value']).toFixed(2));
+  }).catch((err) => {
+    console.error('Error: ', err);
+  });
+}
+
+function getSteps(access_token) {
+  PersonalPageW.setStateStep("loading...")
+  fetch(
+     'https://api.fitbit.com/1/user/-/activities/tracker/steps/date/today/1d.json',
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`
+      },
+
+    }
+  ).then((steps) => {
+    return steps.json()
+  }).then((steps) => {
+    PersonalPageW.setStateStep(steps['activities-tracker-steps'][0]['value']);
+  }).catch((err) => {
+    console.error('Error: ', err);
+  });
+  
+
+}
+
+function getHeartrate(access_token) {
+  PersonalPageW.setStateHeart("loading...")
+  fetch(
+     'https://api.fitbit.com/1/user/-/activities/heart/date/today/1d/1min.json',
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`
+      },
+
+    }
+  ).then((heartrate) => {
+    return heartrate.json()
+  }).then((heartrate) => {
+     PersonalPageW.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
+  }).catch((err) => {
+    console.error('Error: ', err);
+  });
+
+}
 
 export  default  class  PersonalPageW  extends  Component {
 
@@ -25,14 +130,50 @@ export  default  class  PersonalPageW  extends  Component {
     super(props);
 
     var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
-    this.itemsRef = myFirebaseRef.child('user/yuko99'); // child *********
+    this.itemsRef = myFirebaseRef.child('user/' + user); // child *********
 
     this.state= {
+      showText: true,
       doAvatar: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
     };
+    // Toggle the state every second
+    setInterval(() => {
+      this.setState({ showText: !this.state.showText })
+    }, 1000);
 
     this.items = [];
 
+  }
+
+  static state = {
+        step: ' ',
+        dis: ' ',
+        heart:' '
+
+  }
+  
+  static setStateStep(a){
+    this.state.step = a;
+  }
+
+  static setStateDistance(a){
+    this.state.dis = a;
+  }
+
+  static setStateHeart(a){
+    this.state.heart = a;
+  }
+
+  static getStateStep(){
+    return this.state.step;
+  }
+
+  static getStateDistance(){
+    return this.state.dis;
+  }
+
+  static getStateHeart(){
+    return this.state.heart;
   }
 
   _pressButton() {
@@ -43,6 +184,12 @@ export  default  class  PersonalPageW  extends  Component {
                 component: AchievementW,
             })
         }
+  }
+
+  componentWillMount() {
+    OAuth(config.client_id, getDistance);
+    OAuth(config.client_id, getSteps);
+    OAuth(config.client_id, getHeartrate);
   }
 
   componentDidMount() {
@@ -59,6 +206,9 @@ export  default  class  PersonalPageW  extends  Component {
         doAvatar: this.state.doAvatar.cloneWithRows(this.items)
       });
     });
+    OAuth(config.client_id, getDistance);
+    OAuth(config.client_id, getSteps);
+    OAuth(config.client_id, getHeartrate);
   }
 
   render() {
@@ -67,7 +217,7 @@ export  default  class  PersonalPageW  extends  Component {
               <View style={styles.idname_sex}>
                  <View style={styles.idname}>
                     <Text style={styles.idname_text}>
-                      goodgirl
+                      {user}
                     </Text>
                  </View>
                  <View style={styles.sex}>
@@ -94,7 +244,7 @@ export  default  class  PersonalPageW  extends  Component {
                 </View>
                 <View style={styles.status_text_1}>
                   <Text style={styles.status_text}>
-                  
+                    {PersonalPageW.getStateStep()}
                   </Text>
                 </View>
                 <View style={styles.status_text_1}>
@@ -114,7 +264,7 @@ export  default  class  PersonalPageW  extends  Component {
                 </View>
                 <View style={styles.status_text_1}>
                   <Text style={styles.status_text}>
-                  
+                    {PersonalPageW.getStateDistance()}
                   </Text>
                 </View>
                 <View style={styles.status_text_1}>
@@ -128,13 +278,13 @@ export  default  class  PersonalPageW  extends  Component {
                   <View style={styles.icon_1}>
                     <Image
                       style={styles.icon}
-                      source={require('./img/personal/bpm.png')}
+                      source={bpm}
                     />
                   </View>
                 </View>
                 <View style={styles.status_text_1}>
                   <Text style={styles.status_text}>
-                  
+                    {PersonalPageW.getStateHeart()}
                   </Text>
                 </View>
                 <View style={styles.status_text_1}>
