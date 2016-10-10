@@ -12,11 +12,13 @@ import {
   Image,
   TouchableOpacity,
   ListView,
+  Linking,
   Navigator,
 } from 'react-native';
 
 import Firebase from "firebase";
-
+import qs from 'qs';
+import config from './config.js';
 import AchievementM from './AchievementM';
 
 //import bpm from './img/personal/bpmNormal.gif';
@@ -60,7 +62,7 @@ function OAuth(client_id, cb) {
 }
 
 function getDistance(access_token) {
-  PersonalPageＭ.setStateDistance("loading...")
+  PersonalPageM.setStateDistance("loading...")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/distance/date/today/1d.json',
     {
@@ -73,14 +75,14 @@ function getDistance(access_token) {
   ).then((distance) => {
     return distance.json()
   }).then((distance) => {
-    PersonalPageＭ.setStateDistance(Number(distance['activities-tracker-distance'][0]['value']).toFixed(2));
+    PersonalPageM.setStateDistance(Number(distance['activities-tracker-distance'][0]['value']).toFixed(2));
   }).catch((err) => {
     console.error('Error: ', err);
   });
 }
 
 function getSteps(access_token) {
-  PersonalPageＭ.setStateStep("loading...")
+  PersonalPageM.setStateStep("loading...")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/steps/date/today/1d.json',
     {
@@ -93,7 +95,7 @@ function getSteps(access_token) {
   ).then((steps) => {
     return steps.json()
   }).then((steps) => {
-    PersonalPageＭ.setStateStep(steps['activities-tracker-steps'][0]['value']);
+    PersonalPageM.setStateStep(steps['activities-tracker-steps'][0]['value']);
   }).catch((err) => {
     console.error('Error: ', err);
   });
@@ -102,7 +104,7 @@ function getSteps(access_token) {
 }
 
 function getHeartrate(access_token) {
-  PersonalPageＭ.setStateHeart("loading...")
+  PersonalPageM.setStateHeart("loading...")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/heart/date/today/1d/1min.json',
     {
@@ -115,7 +117,7 @@ function getHeartrate(access_token) {
   ).then((heartrate) => {
     return heartrate.json()
   }).then((heartrate) => {
-     PersonalPageＭ.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
+     PersonalPageM.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
   }).catch((err) => {
     console.error('Error: ', err);
   });
@@ -244,7 +246,7 @@ export  default  class  PersonalPageM  extends  Component {
                 </View>
                 <View style={styles.status_text_1}>
                   <Text style={styles.status_text}>
-                    {PersonalPageＭ.getStateStep()}
+                    {PersonalPageM.getStateStep()}
                   </Text>
                 </View>
                 <View style={styles.status_text_1}>
@@ -264,7 +266,7 @@ export  default  class  PersonalPageM  extends  Component {
                 </View>
                 <View style={styles.status_text_1}>
                   <Text style={styles.status_text}>
-                    {PersonalPageＭ.getStateDistance()}
+                    {PersonalPageM.getStateDistance()}
                   </Text>
                 </View>
                 <View style={styles.status_text_1}>

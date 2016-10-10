@@ -24,7 +24,7 @@ import {
 // var NavPersonalPageW = require('./NavPersonalPageW');
 var NavMap = require('./NavMapW');
 var NavFriend = require('./NavFriend');
-var NavPersonalPage = require('./NavPersonalPageW');
+var NavPersonalPage = require('./NavPersonalPageM');
 
 // var sexual = false;
 
@@ -53,10 +53,10 @@ export  default  class  Main  extends  Component {
             avatar: this.props.avatar   
         });
         
-        if(this.props.sexual)
+        if(!this.props.sexual)
         {
-          NavPersonalPage = require('./NavPersonalPageM'); 
-          NavMap = require('./NavMapM')
+          NavPersonalPage = require('./NavPersonalPageW'); 
+          NavMap = require('./NavMapW')
         }
     }
 
