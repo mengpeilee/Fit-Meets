@@ -20,7 +20,7 @@ import {
 import MMap from './MapM';
 import NewFlag from './NewFlag';
 
-export  default  class  NavMap  extends  Component {
+export  default  class  NavMapM  extends  Component {
   render() {
         let defaultName = 'MMap'; 
         let defaultComponent = MMap;
@@ -38,4 +38,4 @@ export  default  class  NavMap  extends  Component {
     }
 }
 
-module.exports = NavMap;
+module.exports = NavMapM;

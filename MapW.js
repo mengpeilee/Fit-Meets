@@ -27,16 +27,19 @@ var dot = 'http://i.imgur.com/vdxn5yp.png';
 var Rnum;
 var count = 0;
 var user = config.user;
-var friend = config.friend;
-var friendName;
-var newfriend = config.newfriend;
-var newfriendName;
+var userName;
 var userLatitude;
 var userLongtitude;
+var friend = config.friend;
+var friendName;
 var friendLatitude = null;
 var friendLongtitude = null;
+var newfriend = config.newfriend;
+var newfriendName;
 var newfriendLatitude = null;
 var newfriendLongtitude = null;
+var newfriendmission1;
+var newfriendmission2;
 var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
 const accessToken = 'pk.eyJ1IjoieXVrbzk5IiwiYSI6ImNpbG9vajM4ZDA4azh0bG0xY3Rpb3J4dHcifQ.aXwrnx9XiPycXWSx84pPkA';
 Mapbox.setAccessToken(accessToken);
@@ -47,6 +50,30 @@ export  default  class  MapW  extends  Component {
     super(props);
 
     //var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
+
+    //-------- user --------
+
+    this.itemsRefUserNF= myFirebaseRef.child('user/' + user + '/newfriend'); // make a new friend
+
+    this.itemsRefUserN = myFirebaseRef.child('user/' + user + '/name').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (name) : ' + snapshot.val());
+      userName = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
+    this.itemsRefNFmission1 = myFirebaseRef.child('user/' + user + '/newfriend/mission').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase ( newfriend-mission ) : ' + snapshot.val());
+      newfriendmission1 = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
 
     //--------friend--------
     this.itemsRefFN = myFirebaseRef.child('user/' + friend + '/name').on("value", function(snapshot) {
@@ -77,6 +104,9 @@ export  default  class  MapW  extends  Component {
     });
 
     //--------new friend--------
+
+    this.itemsRefNFU= myFirebaseRef.child('user/' + newfriend + '/newfriend'); // make a new friend
+
     this.itemsRefNFN = myFirebaseRef.child('user/' + newfriend + '/name').on("value", function(snapshot) {
       //alert(snapshot.val());  
       console.log('what I get from firebase (newfriendname) : ' + snapshot.val());
@@ -104,7 +134,17 @@ export  default  class  MapW  extends  Component {
       console.log("The read friendLatitude failed: " + errorObject.code);
     });
 
-    this.itemsRefSelf = myFirebaseRef.child('user/' + user + '/self'); // child *********
+    this.itemsRefNFmission2 = myFirebaseRef.child('user/' + newfriend+ '/newfriend/mission').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase ( newfriend-mission ) : ' + snapshot.val());
+      newfriendmission2 = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
+    this.itemsRefSelf = myFirebaseRef.child('user/' + user + '/self'); // update user's location
     // this.itemsRefSelf.update({
     //     longtitude: 0,  
     //     latitude: 0,      
@@ -114,8 +154,8 @@ export  default  class  MapW  extends  Component {
 
   _pressButton() {
         const { navigator } = this.props;
-        // if(count > 4)
-        // {
+        if(count > 4)
+        {
           if(navigator) {
               navigator.push({
                   name: 'NewFlag',
@@ -127,11 +167,11 @@ export  default  class  MapW  extends  Component {
                   }            
               })
           }
-        // }
-        // else
-        // {
-        //   alert("至少要收集 5 隻黑貓哦 !");
-        // }
+        }
+        else
+        {
+          alert("至少要收集 5 隻黑貓哦 !");
+        }
   }
 
   state = {
@@ -833,11 +873,31 @@ export  default  class  MapW  extends  Component {
           latitude: userLatitude,      
       });
     }
-    if(Math.abs(userLatitude-newfriendLatitude)<0.00025 && Math.abs(userLongtitude-newfriendLongtitude)<0.00015){
-      
-      alert(" 有同好剛剛經過你喲 <3 \n 去悄悄話交流看看吧  !!");
-     
+
+    if(Math.abs(userLatitude-newfriendLatitude)<0.00025 && Math.abs(userLongtitude-newfriendLongtitude)<0.00016) {
+      if(newfriendmission1) {
+        if(newfriendmission2) {
+
+          this.itemsRefUserNF.update({
+              exist: true, 
+              newfriendID: newfriend,
+              newfriendName: newfriendName,
+              mission: false,
+          });
+
+          this.itemsRefNFU.update({
+              exist: true, 
+              newfriendID: user,
+              newfriendName: userName,
+              mission: false,
+          });
+
+          alert(" 有人怦然心跳地經過你喲 <3 \n 去悄悄話交流看看吧  ~~~");
+          
+        }
+      }
     }
+
   };
   //點擊marker(地圖上的貓或掃叟)做距離判斷及消失與否
   onOpenAnnotation = (annotation) => {
@@ -849,10 +909,10 @@ export  default  class  MapW  extends  Component {
         {
             return a;
         }  
-        
+
       })
     }
-      count++;
+    count++;
   }
     // reloading
     this.forceUpdate();
@@ -2414,7 +2474,7 @@ export  default  class  MapW  extends  Component {
           style={styles.map}
           initialCenterCoordinate={this.state.center}
           initialZoomLevel={15}
-          initialDirection={0}
+          initialDirection={0}  
           rotateEnabled={true}
           scrollEnabled={true}
           zoomEnabled={true}

@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 
 import Firebase from "firebase";
+import * as Animatable from 'react-native-animatable';
 
 import W from './img/sexual/W.png';
 import M from'./img/sexual/M.png';
@@ -99,13 +100,13 @@ export  default  class  SexualChoose extends  Component{
               
               <View style={styles.blue}>
                 <TouchableOpacity onPress={this._pressButtonM.bind(this)}>
-                  <Image style={styles.img} source={require('./img/sexual/M.png')}/>
+                  <Animatable.Text animation="pulse" easing="ease-out" iterationCount="infinite" style={{ textAlign: 'center' }}><Image style={styles.img} source={require('./img/sexual/M.png')}/></Animatable.Text>
                 </ TouchableOpacity>
               </View>
               
               <View style={styles.pink}>
                 <TouchableOpacity onPress={this._pressButtonW.bind(this)}>
-                  <Image style={styles.img} source={require('./img/sexual/W.png')}/>
+                  <Animatable.Text animation="pulse" easing="ease-out" iterationCount="infinite" style={{ textAlign: 'center' }}><Image style={styles.img} source={require('./img/sexual/W.png')}/></Animatable.Text>
                 </ TouchableOpacity>
               </View>
 

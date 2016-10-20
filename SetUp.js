@@ -21,6 +21,8 @@ import config from './config.js';
 
 var user = config.user;
 var userName;
+var newfriend;
+var newfriendName;
 
  export default class SetUp extends React.Component {
 
@@ -36,9 +38,13 @@ var userName;
       todoSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
     };
 
-    this.itemsRefName = myFirebaseRef.child('user/' + user + '/name').on("value", function(snapshot) {
+    // --------- user ---------
+
+    // this.itemsRefNFExist = myFirebaseRef.child('user/' + user + '/newfriend'); // btn check
+
+    this.itemsRefUserName = myFirebaseRef.child('user/' + user + '/name').on("value", function(snapshot) {
       //alert(snapshot.val());  
-      console.log('what I get from firebase (name) : ' + snapshot.val());
+      console.log('what I get from firebase (user name) : ' + snapshot.val());
       userName = snapshot.val();
 
     }, function (errorObject) {
@@ -46,11 +52,41 @@ var userName;
 
     });
 
+    // ---------new friend---------
+    this.itemsRefNewFriendID = myFirebaseRef.child('user/' + user + '/newfriend/newfriendID').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (new friend ID) : ' + snapshot.val());
+      newfriend = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
+    this.itemsRefNewFriendName = myFirebaseRef.child('user/' + user + '/newfriend/newfriendName').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (new friend name) : ' + snapshot.val());
+      newfriendName = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
+    this.itemsRefMake = myFirebaseRef.child('user/' + user + '/friend/'); // _makeFriend()
+
+    this.itemsRefMakeFriend = myFirebaseRef.child('user/' + user + '/friend/' + newfriend); // _makeFriend()
+
+    this.itemsRefRefuseFriend = myFirebaseRef.child('user/' + user + '/newfriend'); // _refuseFriend()
+
+
+
     this.items = [];
 
   }
 
   _pressButton() {
+
         const { navigator } = this.props;
         if(navigator) {
             navigator.pop();
@@ -58,23 +94,51 @@ var userName;
    }
 
    _makeFriend() {
+
+        this.itemsRefMakeFriend.set({
+          userName: newfriendName,
+        });
+
+        this.itemsRefRefuseFriend.update({
+          exist: false,
+        });
+
         const { navigator } = this.props;
         if(navigator) {
             navigator.pop();
         }
    }
 
-   componentDidMount() {
+   _refuseFriend() {
+
+        this.itemsRefRefuseFriend.update({
+          exist: false,
+          newfriendID: "",
+          newfriendName: "",
+        });
+
+        const { navigator } = this.props;
+        if(navigator) {
+            navigator.pop();
+        }
+   }
+
+  componentWillMount() {
+    
+  }
+
+  componentDidMount() {
+
     this.itemsRef.on('child_added', (dataSnapshot) => {
       var ds = dataSnapshot.val();
-      //if(ds.friendID == this.props.friendID || ds.userID == this.props.friendID)
-        // if(ds.userID == user || ds.friendID == user)
-        // {
-          this.items.push({key: dataSnapshot.key(), text: dataSnapshot.val()}); // key -> l49 , l68
+      if(ds.newfriendID == newfriend || ds.userID == newfriend)
+        if(ds.userID == user || ds.newfriendID == user)
+        {
+          this.items.push({key: dataSnapshot.key(), text: dataSnapshot.val()});
           this.setState({
             todoSource: this.state.todoSource.cloneWithRows(this.items)
           });
-        // }
+        }
     });
   }
 
@@ -84,8 +148,8 @@ var userName;
         saying: this.state.newTodo, //each name ********* <!--l101--callback name-->
         userName: userName,
         userID: user,
-        // friendID: ,
-        // friendName: ,
+        newfriendID: newfriend,
+        newfriendName: newfriendName,
       });
       this.setState({
         newTodo: ''
@@ -144,8 +208,14 @@ var userName;
           <View style={styles.bottom}>
             
             <TouchableOpacity style={styles.btn} onPress={() => this._makeFriend()}>
-              <View style={styles.button}>
-                <Text style={styles.btn_text}>　keep in touch　👇 </Text>
+              <View style={styles.button1}>
+                <Text style={styles.btn_text}>　加加　👇 </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.btn} onPress={() => this._refuseFriend()}>
+              <View style={styles.button2}>
+                <Text style={styles.btn_text}>　拜拜　👋 </Text>
               </View>
             </TouchableOpacity>
 
@@ -272,7 +342,7 @@ var styles = StyleSheet.create({
         },
     bottom: {
         flex: 2,
-        flexDirection: 'column',
+        flexDirection: 'row',
         backgroundColor:'#F0FFF0',     
     },
       btn: {
@@ -281,9 +351,15 @@ var styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
       }, 
-      button: {
+      button1: {
         flexDirection: 'row',
-        backgroundColor: '#66DEAA',
+        backgroundColor: '#FFD2D2',
+        justifyContent: 'center',
+        borderRadius: 4,
+      },  
+      button2: {
+        flexDirection: 'row',
+        backgroundColor: '#d0d0d0',
         justifyContent: 'center',
         borderRadius: 4,
       },     

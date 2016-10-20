@@ -24,6 +24,7 @@ import FriendChat from './FriendChat';
 
 var user = config.user;
 var userName;
+var exist = false;
 
 export  default  class  Friend  extends  Component {
 
@@ -39,10 +40,23 @@ export  default  class  Friend  extends  Component {
       todoSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
     };
 
+    this.itemsRefExist = myFirebaseRef.child('user/' + user + '/newfriend/exist').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (new friend exist or not) : ' + snapshot.val());
+      exist = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
     this.items = [];
   }
 
   _pressButton() {
+
+    if(exist)
+    {
         const { navigator } = this.props;
         if(navigator) {
             navigator.push({
@@ -50,6 +64,13 @@ export  default  class  Friend  extends  Component {
                 component: SetUp,
             })
         }
+    }
+
+    else
+    {
+      alert("記得解地圖的任務然後打卡哦 \n\n等待一個為你小鹿亂撞的人吧 :)");
+    }
+
   }
 
   componentDidMount() {

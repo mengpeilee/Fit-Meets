@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
+import * as Animatable from 'react-native-animatable';
 
 import SexualChoose from './SexualChoose';
 import Fitbit from './Fitbit';
@@ -65,17 +66,20 @@ export  default  class  Start extends  Component{
         
   }
 
-  _pressButtonFitbit() {
+  // _pressButtonFitbit() {
 
-    const { navigator } = this.props;
-      if(navigator) {
-          navigator.push({
-            name: 'Fitbit',
-            component: Fitbit,
-          })
-      }    
+  //   const { navigator } = this.props;
+  //     if(navigator) {
+  //         navigator.push({
+  //           name: 'Fitbit',
+  //           component: Fitbit,
+  //         })
+  //     }    
 
-  }
+  // }
+
+  // onPress={this._pressButtonFitbit.bind(this)}
+  //<Image style={styles.img_ft} source={fitbitLogo}/> 
   
   render() {
     return (
@@ -85,13 +89,13 @@ export  default  class  Start extends  Component{
               <View style={styles.blue}>
                 <TouchableOpacity onPress={this._pressButton.bind(this)}>
                   <View>
-                    <Image source={start}/>  
+                    <Animatable.Text animation="jello" easing="ease-out" iterationCount="infinite" style={{ textAlign: 'center' }}><Image source={start}/> </Animatable.Text>  
                   </View>
                 </ TouchableOpacity>
               </View>
-                <TouchableOpacity onPress={this._pressButtonFitbit.bind(this)}>
+                <TouchableOpacity>
                   <View style={styles.img}>
-                    <Image style={styles.img_ft} source={fitbitLogo}/> 
+                    
                   </View>
                 </TouchableOpacity>
             </View>

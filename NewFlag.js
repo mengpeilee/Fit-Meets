@@ -38,7 +38,8 @@ export default class NewFlag extends Component {
            todoSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
         };
 
-        this.itemsRefSelf = myFirebaseRef.child('user/' + user + '/self'); // child *********
+        this.itemsRefSelf = myFirebaseRef.child('user/' + user + '/self'); 
+        this.itemsRefNFmission = myFirebaseRef.child('user/' + user + '/newfriend');
 
         this.items = [];
   }
@@ -89,6 +90,9 @@ export default class NewFlag extends Component {
         this.itemsRefSelf.update({
           longtitude: this.props.userLongtitude,  
           latitude: this.props.userLatitude,      
+        });
+        this.itemsRefNFmission.update({
+          mission: true,     
         });
         this.setState({
           doingThing: ''
