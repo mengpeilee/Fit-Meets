@@ -1,4 +1,3 @@
-
 import React, { 
   Component,
   PropTypes,
@@ -22,10 +21,13 @@ import config from './config.js';
 import AchievementM from './AchievementM';
 
 //import bpm from './img/personal/bpmNormal.gif';
-import bpm from './img/personal/bpmFast.gif';
+//import bpm from './img/personal/bpmFast.gif';
 //import bpm from './img/personal/bpmFaster.gif';
 
-var user = 'yuko99';
+var bpm = require('./img/personal/bpmNormal.gif')
+
+var user = config.user;
+var userName;
 
 function OAuth(client_id, cb) {
 
@@ -62,7 +64,7 @@ function OAuth(client_id, cb) {
 }
 
 function getDistance(access_token) {
-  PersonalPageM.setStateDistance("loading...")
+  PersonalPageM.setStateDistance("loading")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/distance/date/today/1d.json',
     {
@@ -75,6 +77,7 @@ function getDistance(access_token) {
   ).then((distance) => {
     return distance.json()
   }).then((distance) => {
+    console.log(distance);
     PersonalPageM.setStateDistance(Number(distance['activities-tracker-distance'][0]['value']).toFixed(2));
   }).catch((err) => {
     console.error('Error: ', err);
@@ -82,7 +85,7 @@ function getDistance(access_token) {
 }
 
 function getSteps(access_token) {
-  PersonalPageM.setStateStep("loading...")
+  PersonalPageM.setStateStep("loading")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/steps/date/today/1d.json',
     {
@@ -95,6 +98,7 @@ function getSteps(access_token) {
   ).then((steps) => {
     return steps.json()
   }).then((steps) => {
+    console.log(steps);
     PersonalPageM.setStateStep(steps['activities-tracker-steps'][0]['value']);
   }).catch((err) => {
     console.error('Error: ', err);
@@ -104,7 +108,7 @@ function getSteps(access_token) {
 }
 
 function getHeartrate(access_token) {
-  PersonalPageM.setStateHeart("loading...")
+  PersonalPageM.setStateHeart("loading")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/heart/date/today/1d/1min.json',
     {
@@ -117,13 +121,21 @@ function getHeartrate(access_token) {
   ).then((heartrate) => {
     return heartrate.json()
   }).then((heartrate) => {
-     PersonalPageM.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
+    console.log(heartrate);
+     if([heartrate['activities-heart-intraday']['dataset'].length] == 0)
+      {
+       PersonalPageM.setStateHeart("loading");
+        alert("記得開藍芽讓 Fitbit 上傳數據哦 :)");
+      }
+    else
+      { 
+        PersonalPageM.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
+      }
   }).catch((err) => {
     console.error('Error: ', err);
   });
 
 }
-
 
 export  default  class  PersonalPageM  extends  Component {
 
@@ -131,15 +143,29 @@ export  default  class  PersonalPageM  extends  Component {
     super(props);
 
     var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
-    this.itemsRef = myFirebaseRef.child('user/' + user); // child *********
+    this.itemsRef = myFirebaseRef.child('user/' + user ); // child *********
 
     this.state= {
       showText: true,
       doAvatar: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
     };
+
+    this.itemsRefName = myFirebaseRef.child('user/' + user + '/name').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (name) : ' + snapshot.val());
+      userName = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
     // Toggle the state every second
     setInterval(() => {
       this.setState({ showText: !this.state.showText })
+      // OAuth(config.client_id, getDistance);
+      // OAuth(config.client_id, getSteps);
+      // OAuth(config.client_id, getHeartrate);
     }, 1000);
 
     this.items = [];
@@ -162,6 +188,19 @@ export  default  class  PersonalPageM  extends  Component {
   }
 
   static setStateHeart(a){
+
+    if(a < 100)
+      bpm = require('./img/personal/bpmNormal.gif');
+
+    else if(a < 130)
+      bpm = require('./img/personal/bpmFast.gif');
+
+    else if(a >= 130)
+      bpm = require('./img/personal/bpmFaster.gif');
+
+    else
+      bpm = require('./img/personal/bpmNormal.gif');
+
     this.state.heart = a;
   }
 
@@ -187,11 +226,7 @@ export  default  class  PersonalPageM  extends  Component {
         }
   }
 
-  componentWillMount() {
-    OAuth(config.client_id, getDistance);
-    OAuth(config.client_id, getSteps);
-    OAuth(config.client_id, getHeartrate);
-  }
+ 
 
   componentDidMount() {
     this.itemsRef.on('child_added', (dataSnapshot) => {
@@ -207,7 +242,6 @@ export  default  class  PersonalPageM  extends  Component {
         doAvatar: this.state.doAvatar.cloneWithRows(this.items)
       });
     });
-
     OAuth(config.client_id, getDistance);
     OAuth(config.client_id, getSteps);
     OAuth(config.client_id, getHeartrate);
@@ -219,7 +253,7 @@ export  default  class  PersonalPageM  extends  Component {
               <View style={styles.idname_sex}>
                  <View style={styles.idname}>
                     <Text style={styles.idname_text}>
-                      badboy
+                      {userName}
                     </Text>
                  </View>
                  <View style={styles.sex}>
@@ -245,7 +279,7 @@ export  default  class  PersonalPageM  extends  Component {
                   </View>
                 </View>
                 <View style={styles.status_text_1}>
-                  <Text style={styles.status_text}>
+                  <Text style={styles.status_num}>
                     {PersonalPageM.getStateStep()}
                   </Text>
                 </View>
@@ -265,7 +299,7 @@ export  default  class  PersonalPageM  extends  Component {
                   </View>
                 </View>
                 <View style={styles.status_text_1}>
-                  <Text style={styles.status_text}>
+                  <Text style={styles.status_num}>
                     {PersonalPageM.getStateDistance()}
                   </Text>
                 </View>
@@ -285,7 +319,7 @@ export  default  class  PersonalPageM  extends  Component {
                   </View>
                 </View>
                 <View style={styles.status_text_1}>
-                  <Text style={styles.status_text}>
+                  <Text style={styles.status_num}>
                     {PersonalPageM.getStateHeart()}
                   </Text>
                 </View>
@@ -399,6 +433,14 @@ const styles = StyleSheet.create({
           textAlign: 'right',
           fontWeight: 'bold',
           margin: 20,
+          fontFamily: 'monospace',
+          color: '#FFF',
+        },
+        status_num: {
+          fontSize: 25,
+          textAlign: 'right',
+          fontWeight: 'bold',
+          margin: 0,
           fontFamily: 'monospace',
           color: '#FFF',
         },

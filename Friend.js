@@ -17,21 +17,22 @@ import {
 } from 'react-native';
 
 import Firebase from "firebase";
+import config from './config.js';
 
-var SetUp = require('./SetUp');
+import SetUp from './SetUp';
+import FriendChat from './FriendChat';
+
+var user = config.user;
+var userName;
 
 export  default  class  Friend  extends  Component {
 
   constructor(props){
     super(props);
-    //var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
-    var myFirebaseRef = new Firebase('https://ft-friends.firebaseio.com/');
-    // myFirebaseRef.set({
-    //   title: 'Hello',
-    //   author: 'Yuko'
-    // });
 
-    this.itemsRef = myFirebaseRef.child('project'); // child *********
+    var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
+
+    this.itemsRef = myFirebaseRef.child('user/' + user + '/friend'); 
 
     this.state= {
       newTodo: '',
@@ -52,6 +53,7 @@ export  default  class  Friend  extends  Component {
   }
 
   componentDidMount() {
+
     this.itemsRef.on('child_added', (dataSnapshot) => {
       this.items.push({key: dataSnapshot.key(), text: dataSnapshot.val()}); // key -> l49 , l68
       this.setState({
@@ -59,28 +61,32 @@ export  default  class  Friend  extends  Component {
       });
     });
 
-    this.itemsRef.on('child_removed', (dataSnapshot) => {
-      this.items = this.items.filter((x) => x.key !== dataSnapshot.key());
-      this.setState({
-        todoSource: this.state.todoSource.cloneWithRows(this.items)
-      });
-    });
+  }
+
+  goChat(rowData) {
+    const { navigator } = this.props;
+        if(navigator) {
+            navigator.push({
+                name: 'FriendChat',
+                component: FriendChat,
+
+                params: {
+                    friendID: rowData.key,
+                    friendName: rowData.text.userName,
+                }
+            })
+        }
   }
 
   addTodo() {
-    if (this.state.newTodo !== '') {
-      this.itemsRef.push({
-        friendID: this.state.newTodo //each name ********* <!--l101--callback name-->
-      });
-      this.setState({
-        newTodo: ''
-      });
-    }
+    
   }
 
   removeTodo(rowData) {
-    this.itemsRef.child(rowData.key).remove();
+    
   }
+
+
 
   render() {
     return (
@@ -94,27 +100,12 @@ export  default  class  Friend  extends  Component {
           <View style={styles.setting}>
             <TouchableOpacity onPress={this._pressButton.bind(this)}>
               <Text style={styles.setting_text}>
-                 🔧
+                 ❤
               </Text>
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.top}>
-          <View style={styles.title}>
-            <TextInput 
-              style={styles.input} 
-              maxLength={20}
-              multiline={true}
-              onChangeText={(text) => this.setState({newTodo: text})} 
-              value={this.state.newTodo}
-            /> 
-          </View>
-          <View style={styles.adding}>
-            <TouchableOpacity onPress={() => this.addTodo()}>
-              <Text style={styles.btnText}>＋ </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+       
         <View style={styles.list}>
           <ListView
           dataSource={this.state.todoSource}
@@ -130,15 +121,15 @@ export  default  class  Friend  extends  Component {
 
   renderRow(rowData) {
     return (
-      <TouchableHighlight
-        onPress={() => this.removeTodo(rowData)}>
+      <TouchableOpacity onPress={() => this.goChat(rowData)}>
         <View>
           <View style={styles.row}>
-            <Text style={styles.rowText}>{rowData.text.friendID}</Text> 
+            <Text style={styles.rowTextUser}>　　　　💚　  {rowData.text.userName} </Text>
           </View>
           <View style={styles.separator} />
         </View>
-      </TouchableHighlight>
+      </TouchableOpacity>
+       
     );
   }
 
@@ -219,7 +210,7 @@ const styles = StyleSheet.create({
           color: '#000',
         },
     list: {
-        flex: 9,
+        flex: 10,
         flexDirection: 'column',
         backgroundColor:'#F0FFF0',     
     },
@@ -230,13 +221,20 @@ const styles = StyleSheet.create({
         padding: 13,
         height: 45,
       },
-        rowText: {
-          flex:2,
-
+        rowTextUser: {
+          flex:3,
           fontFamily: 'AvenirNext-Medium',
           fontWeight: 'bold',
+          fontSize: 18,
+          marginBottom: 3,
+          color: '#008080',
+        },
+        rowText: {
+          flex:3,
+          textAlign: 'center',
+          fontFamily: 'AvenirNext-Medium',
           fontSize: 15,
-          marginBottom: 5,
+          marginBottom: 3,
           color: '#008080',
         },
         rowTextnon: {

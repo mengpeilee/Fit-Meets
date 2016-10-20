@@ -1,4 +1,3 @@
-
 import React, { 
   Component,
   PropTypes,
@@ -22,10 +21,13 @@ import config from './config.js';
 import AchievementW from './AchievementW';
 
 //import bpm from './img/personal/bpmNormal.gif';
-import bpm from './img/personal/bpmFast.gif';
+//import bpm from './img/personal/bpmFast.gif';
 //import bpm from './img/personal/bpmFaster.gif';
 
-var user = 'yuko99';
+var bpm = require('./img/personal/bpmNormal.gif')
+
+var user = config.user;
+var userName;
 
 function OAuth(client_id, cb) {
 
@@ -62,7 +64,7 @@ function OAuth(client_id, cb) {
 }
 
 function getDistance(access_token) {
-  PersonalPageW.setStateDistance("loading...")
+  PersonalPageW.setStateDistance("loading")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/distance/date/today/1d.json',
     {
@@ -82,7 +84,7 @@ function getDistance(access_token) {
 }
 
 function getSteps(access_token) {
-  PersonalPageW.setStateStep("loading...")
+  PersonalPageW.setStateStep("loading")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/tracker/steps/date/today/1d.json',
     {
@@ -104,7 +106,7 @@ function getSteps(access_token) {
 }
 
 function getHeartrate(access_token) {
-  PersonalPageW.setStateHeart("loading...")
+  PersonalPageW.setStateHeart("loading")
   fetch(
      'https://api.fitbit.com/1/user/-/activities/heart/date/today/1d/1min.json',
     {
@@ -117,7 +119,15 @@ function getHeartrate(access_token) {
   ).then((heartrate) => {
     return heartrate.json()
   }).then((heartrate) => {
-     PersonalPageW.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
+    if([heartrate['activities-heart-intraday']['dataset'].length] == 0)
+      {
+        PersonalPageW.setStateHeart("loading");
+        alert("記得開藍芽讓 Fitbit 上傳數據哦 :)");
+      }
+    else 
+      {
+        PersonalPageW.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
+      }
   }).catch((err) => {
     console.error('Error: ', err);
   });
@@ -130,15 +140,29 @@ export  default  class  PersonalPageW  extends  Component {
     super(props);
 
     var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
-    this.itemsRef = myFirebaseRef.child('user/' + user); // child *********
+    this.itemsRef = myFirebaseRef.child('user/' + user ); // child *********
 
     this.state= {
       showText: true,
       doAvatar: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
     };
+
+    this.itemsRefName = myFirebaseRef.child('user/' + user + '/name').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (name) : ' + snapshot.val());
+      userName = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
     // Toggle the state every second
     setInterval(() => {
       this.setState({ showText: !this.state.showText })
+      // OAuth(config.client_id, getDistance);
+      // OAuth(config.client_id, getSteps);
+      // OAuth(config.client_id, getHeartrate);
     }, 1000);
 
     this.items = [];
@@ -161,6 +185,19 @@ export  default  class  PersonalPageW  extends  Component {
   }
 
   static setStateHeart(a){
+
+    if(a < 100)
+      bpm = require('./img/personal/bpmNormal.gif');
+
+    else if(a < 130)
+      bpm = require('./img/personal/bpmFast.gif');
+
+    else if(a >= 130)
+      bpm = require('./img/personal/bpmFaster.gif');
+
+    else
+      bpm = require('./img/personal/bpmNormal.gif');
+
     this.state.heart = a;
   }
 
@@ -186,11 +223,6 @@ export  default  class  PersonalPageW  extends  Component {
         }
   }
 
-  componentWillMount() {
-    OAuth(config.client_id, getDistance);
-    OAuth(config.client_id, getSteps);
-    OAuth(config.client_id, getHeartrate);
-  }
 
   componentDidMount() {
     this.itemsRef.on('child_added', (dataSnapshot) => {
@@ -217,7 +249,7 @@ export  default  class  PersonalPageW  extends  Component {
               <View style={styles.idname_sex}>
                  <View style={styles.idname}>
                     <Text style={styles.idname_text}>
-                      {user}
+                      {userName}
                     </Text>
                  </View>
                  <View style={styles.sex}>
@@ -243,7 +275,7 @@ export  default  class  PersonalPageW  extends  Component {
                   </View>
                 </View>
                 <View style={styles.status_text_1}>
-                  <Text style={styles.status_text}>
+                  <Text style={styles.status_num}>
                     {PersonalPageW.getStateStep()}
                   </Text>
                 </View>
@@ -263,7 +295,7 @@ export  default  class  PersonalPageW  extends  Component {
                   </View>
                 </View>
                 <View style={styles.status_text_1}>
-                  <Text style={styles.status_text}>
+                  <Text style={styles.status_num}>
                     {PersonalPageW.getStateDistance()}
                   </Text>
                 </View>
@@ -283,7 +315,7 @@ export  default  class  PersonalPageW  extends  Component {
                   </View>
                 </View>
                 <View style={styles.status_text_1}>
-                  <Text style={styles.status_text}>
+                  <Text style={styles.status_num}>
                     {PersonalPageW.getStateHeart()}
                   </Text>
                 </View>
@@ -397,6 +429,14 @@ const styles = StyleSheet.create({
           textAlign: 'right',
           fontWeight: 'bold',
           margin: 20,
+          fontFamily: 'monospace',
+          color: '#FFF',
+        },
+        status_num: {
+          fontSize: 25,
+          textAlign: 'right',
+          fontWeight: 'bold',
+          margin: 0,
           fontFamily: 'monospace',
           color: '#FFF',
         },

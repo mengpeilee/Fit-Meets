@@ -22,16 +22,22 @@ import config from './config.js';
 var user = config.user;
 var userName;
 
- export default class SetUp extends React.Component {
+export  default  class  FriendChat  extends  Component {
 
-  constructor(props) {
+  constructor(props){
     super(props);
-
+    //var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
     var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
+    // myFirebaseRef.set({
+    //   title: 'Hello',
+    //   author: 'Yuko'
+    // });
 
-    this.itemsRef = myFirebaseRef.child('/newFriendChat'); // child *********
+    this.itemsRef = myFirebaseRef.child('chatroom'); 
 
-    this.state = {
+    this.state= {
+      friendID: '',
+      friendName: '',
       newTodo: '',
       todoSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
     };
@@ -47,45 +53,53 @@ var userName;
     });
 
     this.items = [];
-
   }
 
   _pressButton() {
-        const { navigator } = this.props;
-        if(navigator) {
-            navigator.pop();
-        }
-   }
+      this.setState({
+        friendID: '',
+        friendName: '',
+        newTodo: '',
+       
+      });
 
-   _makeFriend() {
-        const { navigator } = this.props;
-        if(navigator) {
-            navigator.pop();
-        }
-   }
+      const { navigator } = this.props;
+      if(navigator) {
+        navigator.pop();
+      }
+  }
 
-   componentDidMount() {
+  componentDidMount() {
+    this.setState({
+        friendID: this.props.friendID,  
+        friendName: this.props.friendName,   
+    });
+
     this.itemsRef.on('child_added', (dataSnapshot) => {
       var ds = dataSnapshot.val();
-      //if(ds.friendID == this.props.friendID || ds.userID == this.props.friendID)
-        // if(ds.userID == user || ds.friendID == user)
-        // {
-          this.items.push({key: dataSnapshot.key(), text: dataSnapshot.val()}); // key -> l49 , l68
+      if(ds.friendID == this.props.friendID || ds.userID == this.props.friendID)
+        if(ds.userID == user || ds.friendID == user)
+        {
+          this.items.push({key: dataSnapshot.key(), text: dataSnapshot.val()});
           this.setState({
             todoSource: this.state.todoSource.cloneWithRows(this.items)
           });
-        // }
+        }
     });
+  }
+
+  componentWillMount() {
+    
   }
 
   addTodo() {
     if (this.state.newTodo !== '') {
       this.itemsRef.push({
-        saying: this.state.newTodo, //each name ********* <!--l101--callback name-->
-        userName: userName,
+        saying: this.state.newTodo, 
         userID: user,
-        // friendID: ,
-        // friendName: ,
+        userName: userName,
+        friendID: this.state.friendID,
+        friendName: this.state.friendName,
       });
       this.setState({
         newTodo: ''
@@ -94,24 +108,22 @@ var userName;
   }
 
   removeTodo(rowData) {
-    
+
   }
 
-
- 
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.top}>
           <View style={styles.title}>
             <Text style={styles.title_text}>
-              💞 擦身而過的你/妳 ...
+              {userName} 👫 {this.state.friendName}
             </Text>
           </View>
           <View style={styles.setting}>
             <TouchableOpacity onPress={this._pressButton.bind(this)}>
               <Text style={styles.setting_text}>
-                  ↺ 
+                 ↺
               </Text>
             </TouchableOpacity>
           </View>
@@ -132,29 +144,17 @@ var userName;
             </TouchableOpacity>
           </View>
         </View>
-
-        <View style={styles.mid}>
-          <View style={styles.list}>
-            <ListView
-            dataSource={this.state.todoSource}
-            renderRow={this.renderRow.bind(this)} 
-            enableEmptySections={true} 
-            />
-          </View>
-          <View style={styles.bottom}>
-            
-            <TouchableOpacity style={styles.btn} onPress={() => this._makeFriend()}>
-              <View style={styles.button}>
-                <Text style={styles.btn_text}>　keep in touch　👇 </Text>
-              </View>
-            </TouchableOpacity>
-
-          </View>
-        </View>
-        <View style={styles.tab}>
+        <View style={styles.list}>
+          <ListView
+          dataSource={this.state.todoSource}
+          renderRow={this.renderRow.bind(this)} 
+          enableEmptySections={true} 
+          />
         </View>    
+        <View style={styles.tab}>
+        </View>
       </View>
-    );
+    )
   }
 
   renderRow(rowData) {
@@ -174,7 +174,39 @@ var userName;
 
 }
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
+
+  inputcontainer: {
+    marginTop: 5,
+    padding: 10,
+    flexDirection: 'row'
+  },
+
+  btnText: {
+    fontSize: 18,
+    color: '#000000',
+    marginTop: 6,
+  },
+  input: {
+    height: 36,
+    width: 250,
+    padding: 4,
+    marginRight: 5,
+    flex: 4,
+    fontSize: 18,
+    borderWidth: 1,
+    borderColor: '#48afdb',
+    borderRadius: 4,
+    color: '#48BBEC',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#CCCCCC',
+  },
+  todoText: {
+    flex: 1,
+  },
+
   container: {
         flex: 1,
         flexDirection: 'column'
@@ -196,13 +228,19 @@ var styles = StyleSheet.create({
           margin: 10,
           fontWeight: 'bold',
           color: '#000',
-        },  
+        },
       setting: {
           flex: 2,
           backgroundColor: '#66CDAA',
           alignItems: 'center',
           justifyContent: 'center',
-      },    
+      }, 
+      adding: {
+          flex: 2,
+          backgroundColor: '#66DEAA',
+          alignItems: 'center',
+          justifyContent: 'center',
+      },     
         setting_text: {
           fontSize: 30,
           textAlign: 'center',
@@ -210,31 +248,8 @@ var styles = StyleSheet.create({
           fontWeight: 'bold',
           color: '#000',
         },
-      input: {
-        height: 36,
-        width: 250,
-        padding: 4,
-        marginRight: 5,
-        flex: 4,
-        fontSize: 18,
-        borderWidth: 1,
-        borderColor: '#48afdb',
-        borderRadius: 4,
-        color: '#48BBEC',
-      },
-      adding: {
-          flex: 2,
-          backgroundColor: '#66DEAA',
-          alignItems: 'center',
-          justifyContent: 'center',
-      }, 
-    mid: {
-        flex: 9,
-        flexDirection: 'column',
-        backgroundColor:'#F0FFF0',     
-    },    
     list: {
-        flex: 8,
+        flex: 9,
         flexDirection: 'column',
         backgroundColor:'#F0FFF0',     
     },
@@ -263,40 +278,16 @@ var styles = StyleSheet.create({
           marginBottom: 5,
           color: '#008080',
         },
-        separator: {
-          height: 1,
-          backgroundColor: '#CCCCCC',
-        },
-        todoText: {
-          flex: 1,
-        },
-    bottom: {
-        flex: 2,
-        flexDirection: 'column',
-        backgroundColor:'#F0FFF0',     
-    },
-      btn: {
-        flex: 4,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }, 
-      button: {
-        flexDirection: 'row',
-        backgroundColor: '#66DEAA',
-        justifyContent: 'center',
-        borderRadius: 4,
-      },     
-        btn_text: {
-          fontSize: 20,
-          margin: 10,
-          fontWeight: 'bold',
-          color: '#000',
+        rowTextnon: {
+          flex:2,
+          textAlign: 'center',
+          fontFamily: 'serif',
+          fontSize: 15,
+          marginBottom: 5,
+          color:'#888888',
         },
     tab: {
       flex: 1,
       backgroundColor:'#F0FFF0',
     },
 });
-
-module.exports = SetUp;

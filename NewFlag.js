@@ -17,24 +17,29 @@ import {
 } from 'react-native';
 
 import Firebase from "firebase";
+import config from './config.js';
 
 //var SAMPLE_TEXT = "Welcome to React Native Playground!";
+var user = config.user;
 
 export default class NewFlag extends Component {
 
   constructor(props) {
         super(props);
-        var myFirebaseRef = new Firebase('https://ft-friends.firebaseio.com/');
+        var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
         this.itemsRef = myFirebaseRef.child('map'); // child *********
         this.state = {
-         classification: '',
-         latitude: '',
-         longtitude: '',
-         doingThing:'',
-         time: '',
-         uID: '',
-         todoSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
+           classification: '',
+           userLongtitude: '',
+           userLatitude: '',
+           doingThing:'',
+           time: '',
+           uID: '',
+           todoSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
         };
+
+        this.itemsRefSelf = myFirebaseRef.child('user/' + user + '/self'); // child *********
+
         this.items = [];
   }
 
@@ -46,35 +51,54 @@ export default class NewFlag extends Component {
    }
 
    componentDidMount() {
-    this.itemsRef.on('child_added', (dataSnapshot) => {
-      this.items.push({key: dataSnapshot.key(), text: dataSnapshot.val()}); // key -> l49 , l68
-      this.setState({
-        todoSource: this.state.todoSource.cloneWithRows(this.items)
-      });
-    });
 
-    this.itemsRef.on('child_removed', (dataSnapshot) => {
-      this.items = this.items.filter((x) => x.key !== dataSnapshot.key());
       this.setState({
-        todoSource: this.state.todoSource.cloneWithRows(this.items)
+          userLongtitude: this.props.userLongtitude,  
+          userLatitude: this.props.userLatitude
       });
-    });
+
+      this.itemsRef.on('child_added', (dataSnapshot) => {
+          this.items.push({key: dataSnapshot.key(), text: dataSnapshot.val()}); // key -> l49 , l68
+          this.setState({
+            todoSource: this.state.todoSource.cloneWithRows(this.items)
+          });
+      });
+
+      this.itemsRef.on('child_removed', (dataSnapshot) => {
+          this.items = this.items.filter((x) => x.key !== dataSnapshot.key());
+          this.setState({
+            todoSource: this.state.todoSource.cloneWithRows(this.items)
+          });
+      });
   }
 
   addTodo() {
-    if (this.state.doingThing !== '') {
-      this.itemsRef.push({
-        text: this.state.doingThing, //each name ********* <!--l101--callback name-->
-        classification: this.state.classification,
-      });
-      this.setState({
-        doingThing: ''
-      });
+    if(this.props.userLongtitude == null && this.props.userLatitude == null)
+    {
+      alert(" 沒有偵測到GPS哦 :( ");
     }
-    const { navigator } = this.props;
+
+    else if (this.state.doingThing !== '') {
+        this.itemsRef.push({
+          userID: user,
+          userLongtitude: this.props.userLongtitude,  
+          userLatitude: this.props.userLatitude,
+          text: this.state.doingThing, //each name ********* <!--l101--callback name-->
+          classification: this.state.classification,
+        }); 
+        this.itemsRefSelf.update({
+          longtitude: this.props.userLongtitude,  
+          latitude: this.props.userLatitude,      
+        });
+        this.setState({
+          doingThing: ''
+        });
+
+        const { navigator } = this.props;
           if(navigator) {
               navigator.pop();
           }
+    }
     
   }
 

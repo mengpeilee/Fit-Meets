@@ -21,6 +21,7 @@ import {
 
 import Friend from './Friend';
 import SetUp from './SetUp';
+import FriendChat from './FriendChat';
 
 export  default  class  NavFriend  extends  Component {
   render() {

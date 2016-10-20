@@ -65,7 +65,8 @@ export  default  class  Main  extends  Component {
       <ScrollableTabView 
         tabBarPosition='overlayBottom' 
         initialPage={1}
-      >
+        locked={true}
+        >
         <View style={styles.slide0} tabLabel='Friend'>
           <NavFriend></NavFriend>
         </View>   

@@ -1,24 +1,139 @@
-'use strict';
-/* eslint no-console: 0 */
+import React, { 
+  Component,
+  PropTypes,
+} from 'react';
 
-import React, { Component } from 'react';
 import Mapbox, { MapView } from 'react-native-mapbox-gl';
+
 import {
   AppRegistry,
   StyleSheet,
   Text,
-  StatusBar,
   View,
+  Image,
+  TouchableOpacity,
+  TouchableHighlight,
+  StatusBar,
+  ListView,
   ScrollView
 } from 'react-native';
 
+import NewFlag from './NewFlag';
+import config from './config.js';
 
 var dot = 'http://i.imgur.com/vdxn5yp.png';
-var Rnum = Math.floor((Math.random() * 10) + 1);
+//var W_cat = 'http://i.imgur.com/vdxn5yp.png';
+//var M_broom = 'http://i.imgur.com/8DKYOcP.png';
+var Rnum;
+var count = 0;
+var user = config.user;
+var friend = config.friend;
+var friendName;
+var newfriend = config.newfriend;
+var newfriendName;
+var userLatitude;
+var userLongtitude;
+var friendLatitude = null;
+var friendLongtitude = null;
+var newfriendLatitude = null;
+var newfriendLongtitude = null;
+var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
 const accessToken = 'pk.eyJ1IjoieXVrbzk5IiwiYSI6ImNpbG9vajM4ZDA4azh0bG0xY3Rpb3J4dHcifQ.aXwrnx9XiPycXWSx84pPkA';
 Mapbox.setAccessToken(accessToken);
 
 export  default  class  MapW  extends  Component {
+
+  constructor(props){
+    super(props);
+
+    //var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
+
+    //--------friend--------
+    this.itemsRefFN = myFirebaseRef.child('user/' + friend + '/name').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (friendname) : ' + snapshot.val());
+      friendName = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read friendName failed: " + errorObject.code);
+    });
+
+    this.itemsRefLon = myFirebaseRef.child('user/' + friend + '/self/longtitude').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (friendLongtitude) : ' + snapshot.val());
+      friendLongtitude = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read friendLongtitude failed: " + errorObject.code);
+    });
+
+    this.itemsRefLat = myFirebaseRef.child('user/' + friend + '/self/latitude').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (friendLatitude) : ' + snapshot.val());
+      friendLatitude = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read friendLatitude failed: " + errorObject.code);
+    });
+
+    //--------new friend--------
+    this.itemsRefNFN = myFirebaseRef.child('user/' + newfriend + '/name').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (newfriendname) : ' + snapshot.val());
+      newfriendName = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read friendName failed: " + errorObject.code);
+    });
+
+    this.itemsRefNLon = myFirebaseRef.child('user/' + newfriend + '/self/longtitude').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (newfriendLongtitude) : ' + snapshot.val());
+      newfriendLongtitude = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read friendLongtitude failed: " + errorObject.code);
+    });
+
+    this.itemsRefNLat = myFirebaseRef.child('user/' + newfriend + '/self/latitude').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (newfriendLatitude) : ' + snapshot.val());
+      newfriendLatitude = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read friendLatitude failed: " + errorObject.code);
+    });
+
+    this.itemsRefSelf = myFirebaseRef.child('user/' + user + '/self'); // child *********
+    // this.itemsRefSelf.update({
+    //     longtitude: 0,  
+    //     latitude: 0,      
+    // });
+    
+  }
+
+  _pressButton() {
+        const { navigator } = this.props;
+        // if(count > 4)
+        // {
+          if(navigator) {
+              navigator.push({
+                  name: 'NewFlag',
+                  component: NewFlag,   
+
+                  params: {
+                      userLongtitude: userLongtitude,
+                      userLatitude: userLatitude
+                  }            
+              })
+          }
+        // }
+        // else
+        // {
+        //   alert("至少要收集 5 隻黑貓哦 !");
+        // }
+  }
+
   state = {
     center: {
       latitude: 25.036285,
@@ -684,18 +799,19 @@ export  default  class  MapW  extends  Component {
         strokeWidth: 1,
 
         id: 'art'
-      }, {
-        coordinates: [25.03290770255513, 121.43403589725494],
-        type: 'point',
-        id: 'true beautiful',
-        title: '真善美聖',
-        annotationImage: {
-          source: { uri: 'cat' },
-          height: 30,
-          width: 15
-        }
-      }
-      ]
+      },
+      // {
+      //   coordinates: [friendLatitude, friendLongtitude],
+      //   type: 'point',
+      //   id: 'friend',
+       
+      //   annotationImage: {
+      //     source: { uri: 'friendm' },
+      //     height: 30,
+      //     width: 30
+      //   }
+      // }
+    ]
   };
 
   onRegionDidChange = (location) => {
@@ -707,9 +823,39 @@ export  default  class  MapW  extends  Component {
   };
   onUpdateUserLocation = (location) => {
     console.log('onUpdateUserLocation', location);
+    userLatitude=location.latitude;
+    userLongtitude=location.longitude;
+
+    if(userLongtitude != null && userLatitude != null)
+    {
+      this.itemsRefSelf.update({
+          longtitude: userLongtitude,  
+          latitude: userLatitude,      
+      });
+    }
+    if(Math.abs(userLatitude-newfriendLatitude)<0.00025 && Math.abs(userLongtitude-newfriendLongtitude)<0.00015){
+      
+      alert(" 有同好剛剛經過你喲 <3 \n 去悄悄話交流看看吧  !!");
+     
+    }
   };
+  //點擊marker(地圖上的貓或掃叟)做距離判斷及消失與否
   onOpenAnnotation = (annotation) => {
-    console.log('onOpenAnnotation', annotation);
+    if(annotation.id !== 'friend'  && Math.abs(annotation.latitude-userLatitude)<0.0005 && Math.abs(annotation.longitude-userLongtitude)<0.00033){
+      this.state = {
+      annotations: this.state.annotations.filter(a =>  {
+        //在annotation上該id不應存在的會消逝
+        if(a.id !== annotation.id)
+        {
+            return a;
+        }  
+        
+      })
+    }
+      count++;
+  }
+    // reloading
+    this.forceUpdate();
   };
   onRightAnnotationTapped = (e) => {
     console.log('onRightAnnotationTapped', e);
@@ -743,55 +889,1526 @@ export  default  class  MapW  extends  Component {
     this._offlineErrorSubscription.remove();
   }
 
+  //找尋貓與掃叟
   addNewMarkers = () => {
+
+    count = 0;
+    Rnum = Math.floor((Math.random() * 10) + 1);
+    this.state = {
+      annotations: this.state.annotations.filter(a =>  {
+
+        if(a.id !== 'small Paris') //小巴黎
+        if(a.id !== 'fu circle') //輔園
+        if(a.id !== 'clothing') //織品
+        if(a.id !== 'literature library') //公博樓
+        if(a.id !== 'education collage') //教育學院
+        if(a.id !== 'gi gen building') //積健樓
+        if(a.id !== 'old medical') //舊醫學大樓
+        if(a.id !== 'night school') //進修部
+        if(a.id !== 'FAHY') //FAHY
+        if(a.id !== 'social technology') //社科院
+        if(a.id !== 'shan yen building') //聖言樓
+        if(a.id !== 'icecream') //輔大冰淇淋
+        if(a.id !== 'College Of Human Ecology') //民生學院
+        if(a.id !== 'wind slide square') //風華廣場
+        if(a.id !== 'guo si building') //國璽樓
+        if(a.id !== 'people circle') //仁園
+        if(a.id !== 'lo yell la') //羅耀拉
+        if(a.id !== 'forgein language') //外語學院
+        if(a.id !== 'yee may girl dorm') //宜美女宿
+        if(a.id !== 'broadcast collage') //傳播學院
+        if(a.id !== 'center beautiful building') //中美堂
+        if(a.id !== 'lee ma do') //利瑪竇
+        if(a.id !== 'heart circle') //心園
+        if(a.id !== 'hundred') //百鍊聽
+        if(a.id !== 'Vienna') //維也納森林
+        if(a.id !== 'true beautiful') //真善美聖
+        if(a.id !== 'art collage') //藝術學院
+        if(a.id !== 'literature collage') //文學院
+        if(a.id !== 'literature circle') //文園
+        if(a.id !== 'law') //法律學院
+        if(a.id !== 'go boy dorm') //格物男宿
+        if(a.id !== 'couple pull') //情人批
+        if(a.id !== 'building of su') //舒德樓
+        if(a.id !== 'lee circle') //理園
+        if(a.id !== 'yee true girl dorm') //宜真女宿
+
+          return a;
+      })
+    }
+    
     // Treat annotations as immutable and create a new one instead of using .push()
+    if(Rnum == 1 ){
+
     this.setState({
       annotations: [ ...this.state.annotations, {
-        coordinates: [25.03795766946733,121.43111228942873],
+        coordinates: [25.03290770255513, 121.43403589725494],
         type: 'point',
-        title: 'This is a new marker',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035051169149014, 121.43165946006775],
+        type: 'point',
+        id: 'couple pull',
+        title: '情人坡',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.034613730028585, 121.43293619155884],
+        type: 'point',
+        id: 'small Paris',
+        title: '小巴黎',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036130178976897, 121.43083333969116],
+        type: 'point',
+        id: 'lo yell la',
+        title: '羅耀拉',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036966162047996, 121.4298892021179],
+        type: 'point',
+        id: 'heart circle',
+        title: '心園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037218899994397, 121.43120884895325],
+        type: 'point',
+        id: 'lee ma do',
+        title: '利瑪竇',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.038521464229383, 121.43138051033019],
+        type: 'point',
+        id: 'guo si building',
+        title: '國璽樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037549402677048, 121.4323353767395],
+        type: 'point',
+        id: 'gi gen building',
+        title: '積健樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036839792879498, 121.43331170082092],
+        type: 'point',
+        id: 'broadcast collage',
+        title: '傳播學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036344035653652, 121.43504977226256],
+        type: 'point',
+        id: 'art collage',
+        title: '藝術學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03517754016007, 121.43322587013245],
+        type: 'point',
+        id: 'clothing',
+        title: '織品',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03433182399113, 121.43403053283691],
+        type: 'point',
+        id: 'fu circle',
+        title: '輔園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else if(Rnum == 2 ){
+    this.setState({
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03459428825369, 121.43221735954285],
+        type: 'point',
+        id: 'Vienna',
+        title: '維也納森林',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.0354886067096, 121.43144488334656],
+        type: 'point',
+        id: 'shan yen building',
+        title: '聖言樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036382918645756, 121.43220663070679],
+        type: 'point',
+        id: 'law',
+        title: '法律學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035770510088796, 121.43037199974059],
+        type: 'point',
+        id: 'FAHY',
+        title: '濟時樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037627167884715, 121.43023252487183],
+        type: 'point',
+        id: 'night school',
+        title: '進修部',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.038521464229383, 121.43138051033019],
+        type: 'point',
+        id: 'guo si building',
+        title: '國璽樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037879904469175, 121.43198132514954],
+        type: 'point',
+        id: 'center beautiful building',
+        title: '中美堂',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037141134527882, 121.43393397331239],
+        type: 'point',
+        id: 'education collage',
+        title: '教育學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036091295904694, 121.43428802490233],
+        type: 'point',
+        id: 'literature library',
+        title: '公博樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035352515191246, 121.43419146537781],
+        type: 'point',
+        id: 'College Of Human Ecology',
+        title: '民生學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.0338943823057, 121.43380522727965],
+        type: 'point',
+        id: 'building of su',
+        title: '舒德樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else if(Rnum == 3 ){
+    this.setState({
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03459428825369, 121.43221735954285],
+        type: 'point',
+        id: 'forgein language',
+        title: '外語學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035323352703386, 121.43073678016661],
+        type: 'point',
+        id: 'lee circle',
+        title: '理園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036752306455835, 121.4319062232971],
+        type: 'point',
+        id: 'social technology',
+        title: '社會學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03646068459294, 121.42969608306883],
+        type: 'point',
+        id: 'people circle',
+        title: '仁園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037218899994397, 121.43120884895325],
+        type: 'point',
+        id: 'lee ma do',
+        title: '利瑪竇',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03795766946733, 121.43111228942873],
+        type: 'point',
         id: 'old medical',
+        title: '舊醫學大樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037131413841102, 121.4323568344116],
+        type: 'point',
+        id: 'wind slide square',
+        title: '風華廣場',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036839792879498, 121.43331170082092],
+        type: 'point',
+        id: 'broadcast collage',
+        title: '傳播學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036344035653652, 121.43504977226256],
+        type: 'point',
+        id: 'art collage',
+        title: '藝術學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03517754016007, 121.43322587013245],
+        type: 'point',
+        id: 'clothing',
+        title: '織品',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03476926411677, 121.43459916114807],
+        type: 'point',
+        id: 'icecream',
+        title: '輔大冰淇淋',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else if(Rnum == 4 ){
+    this.setState({
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.034613730028585, 121.43293619155884],
+        type: 'point',
+        id: 'small Paris',
+        title: '小巴黎',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035896880358834, 121.4317774772644],
+        type: 'point',
+        id: 'hundred',
+        title: '百鍊廳',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036130178976897, 121.43083333969116],
+        type: 'point',
+        id: 'lo yell la',
+        title: '羅耀拉',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036966162047996, 121.4298892021179],
+        type: 'point',
+        id: 'heart circle',
+        title: '心園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037627167884715, 121.43023252487183],
+        type: 'point',
+        id: 'night school',
+        title: '進修部',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.038521464229383, 121.43138051033019],
+        type: 'point',
+        id: 'guo si building',
+        title: '國璽樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03701476553966, 121.43287181854247],
+        type: 'point',
+        id: 'literature circle',
+        title: '文園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+       coordinates: [25.037141134527882, 121.43393397331239],
+        type: 'point',
+        id: 'education collage',
+        title: '教育學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036091295904694, 121.43428802490233],
+        type: 'point',
+        id: 'literature library',
+        title: '公博樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03585799721269, 121.43452405929564],
+        type: 'point',
+        id: 'yee may girl dorm',
+        title: '宜美宿舍',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.034808147608015, 121.43378376960754],
+        type: 'point',
+        id: 'yee true girl dorm',
+        title: '宜真宿舍',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else if(Rnum == 5 ){
+    this.setState({
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03459428825369, 121.43221735954285],
+        type: 'point',
+        id: 'Vienna',
+        title: '維也納森林',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035323352703386, 121.43073678016661],
+        type: 'point',
+        id: 'lee circle',
+        title: '理園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036382918645756, 121.43220663070679],
+        type: 'point',
+        id: 'law',
+        title: '法律學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035770510088796, 121.43037199974059],
+        type: 'point',
+        id: 'FAHY',
+        title: '濟時樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037627167884715, 121.43023252487183],
+        type: 'point',
+        id: 'night school',
+        title: '進修部',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.038521464229383, 121.43138051033019],
+        type: 'point',
+        id: 'guo si building',
+        title: '國璽樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037549402677048, 121.4323353767395],
+        type: 'point',
+        id: 'gi gen building',
+        title: '積健樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03633431490372, 121.4333653450012],
+        type: 'point',
+        id: 'literature collage',
+        title: '文學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036091295904694, 121.43428802490233],
+        type: 'point',
+        id: 'literature library',
+        title: '公博樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03517754016007, 121.43322587013245],
+        type: 'point',
+        id: 'clothing',
+        title: '織品',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.0338943823057, 121.43380522727965],
+        type: 'point',
+        id: 'building of su',
+        title: '舒德樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else if(Rnum == 6 ){
+    this.setState({
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03459428825369, 121.43221735954285],
+        type: 'point',
+        id: 'forgein language',
+        title: '外語學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035051169149014, 121.43165946006775],
+        type: 'point',
+        id: 'couple pull',
+        title: '情人坡',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036752306455835, 121.4319062232971],
+        type: 'point',
+        id: 'social technology',
+        title: '社會學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035770510088796, 121.43037199974059],
+        type: 'point',
+        id: 'FAHY',
+        title: '濟時樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037218899994397, 121.43120884895325],
+        type: 'point',
+        id: 'lee ma do',
+        title: '利瑪竇',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.038521464229383, 121.43138051033019],
+        type: 'point',
+        id: 'guo si building',
+        title: '國璽樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037131413841102, 121.4323568344116],
+        type: 'point',
+        id: 'wind slide square',
+        title: '風華廣場',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03633431490372, 121.4333653450012],
+        type: 'point',
+        id: 'literature collage',
+        title: '文學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036344035653652, 121.43504977226256],
+        type: 'point',
+        id: 'art collage',
+        title: '藝術學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03585799721269, 121.43452405929564],
+        type: 'point',
+        id: 'yee may girl dorm',
+        title: '宜美學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03476926411677, 121.43459916114807],
+        type: 'point',
+        id: 'icecream',
+        title: '輔大冰淇淋',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else if(Rnum == 7 ){
+    this.setState({
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.034613730028585, 121.43293619155884],
+        type: 'point',
+        id: 'small Paris',
+        title: '小巴黎',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.034983123166068, 121.43106937408446],
+        type: 'point',
+        id: 'go boy dorm',
+        title: '格物宿舍',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036382918645756, 121.43220663070679],
+        type: 'point',
+        id: 'law',
+        title: '法律學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03646068459294, 121.42969608306883],
+        type: 'point',
+        id: 'people circle',
+        title: '仁園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037627167884715, 121.43023252487183],
+        type: 'point',
+        id: 'night school',
+        title: '進修部',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03795766946733, 121.43111228942873],
+        type: 'point',
+        id: 'old medical',
+        title: '舊醫學大樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03701476553966, 121.43287181854247],
+        type: 'point',
+        id: 'literature circle',
+        title: '文園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03633431490372, 121.4333653450012],
+        type: 'point',
+        id: 'literature collage',
+        title: '文學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036344035653652, 121.43504977226256],
+        type: 'point',
+        id: 'art collage',
+        title: '藝術學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035352515191246, 121.43419146537781],
+        type: 'point',
+        id: 'College Of Human Ecology',
+        title: '民生學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03433182399113, 121.43403053283691],
+        type: 'point',
+        id: 'fu circle',
+        title: '輔園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else if(Rnum == 8 ){
+    this.setState({
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03459428825369, 121.43221735954285],
+        type: 'point',
+        id: 'Vienna',
+        title: '維也納森林',
         annotationImage: {
               source: { uri: 'cat' },
               height: 30,
               width: 15
           }
-      }, 
+      }, {
+        coordinates: [25.035896880358834, 121.4317774772644],
+        type: 'point',
+        id: 'hundred',
+        title: '百鍊廳',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036752306455835, 121.4319062232971],
+        type: 'point',
+        id: 'social technology',
+        title: '社會學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036966162047996, 121.4298892021179],
+        type: 'point',
+        id: 'heart circle',
+        title: '心園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037218899994397, 121.43120884895325],
+        type: 'point',
+        id: 'lee ma do',
+        title: '利瑪竇',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.038521464229383, 121.43138051033019],
+        type: 'point',
+        id: 'guo si building',
+        title: '國璽樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037879904469175, 121.43198132514954],
+        type: 'point',
+        id: 'center beautiful building',
+        title: '中美堂',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036839792879498, 121.43331170082092],
+        type: 'point',
+        id: 'broadcast collage',
+        title: '傳播學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036091295904694, 121.43428802490233],
+        type: 'point',
+        id: 'literature library',
+        title: '公博樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03585799721269, 121.43452405929564],
+        type: 'point',
+        id: 'yee may girl dorm',
+        title: '宜美宿舍',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.0338943823057, 121.43380522727965],
+        type: 'point',
+        id: 'building of su',
+        title: '舒德樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
       ]
     });
-  };
-
-  updateMarker2 = () => {
-    // Treat annotations as immutable and use .map() instead of changing the array
+  }
+  else if(Rnum == 9 ){
     this.setState({
-      annotations: this.state.annotations.map(annotation => {
-        if (annotation.id !== 'marker2') { return annotation; }
-        return {
-          coordinates: [40.714541341726175,-74.00579452514648],
-          'type': 'point',
-          title: 'New Title!',
-          subtitle: 'New Subtitle',
-          annotationImage: {
-            source: { uri: 'cat' },
-            height: 25,
-            width: 25
-          },
-          id: 'marker2'
-        };
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03459428825369, 121.43221735954285],
+        type: 'point',
+        id: 'forgein language',
+        title: '外語學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.0354886067096, 121.43144488334656],
+        type: 'point',
+        id: 'shan yen building',
+        title: '聖言樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036130178976897, 121.43083333969116],
+        type: 'point',
+        id: 'lo yell la',
+        title: '羅耀拉',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03646068459294, 121.42969608306883],
+        type: 'point',
+        id: 'people circle',
+        title: '仁園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037627167884715, 121.43023252487183],
+        type: 'point',
+        id: 'night school',
+        title: '進修部',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.038521464229383, 121.43138051033019],
+        type: 'point',
+        id: 'guo si building',
+        title: '國璽樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037131413841102, 121.4323568344116],
+        type: 'point',
+        id: 'wind slide square',
+        title: '風華廣場',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037141134527882, 121.43393397331239],
+        type: 'point',
+        id: 'education collage',
+        title: '教育學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036344035653652, 121.43504977226256],
+        type: 'point',
+        id: 'art collage',
+        title: '藝術學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035352515191246, 121.43419146537781],
+        type: 'point',
+        id: 'College Of Human Ecology',
+        title: '民生學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03476926411677, 121.43459916114807],
+        type: 'point',
+        id: 'icecream',
+        title: '輔大冰淇淋',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else if(Rnum == 10 ){
+    this.setState({
+      annotations: [ ...this.state.annotations, {
+        coordinates: [25.03290770255513, 121.43403589725494],
+        type: 'point',
+        id: 'true beautiful',
+        title: '真善美聖',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.034613730028585, 121.43293619155884],
+        type: 'point',
+        id: 'small Paris',
+        title: '小巴黎',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.0354886067096, 121.43144488334656],
+        type: 'point',
+        id: 'shan yen building',
+        title: '聖言樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036752306455835, 121.4319062232971],
+        type: 'point',
+        id: 'social technology',
+        title: '社會學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.035770510088796, 121.43037199974059],
+        type: 'point',
+        id: 'FAHY',
+        title: '濟時樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037627167884715, 121.43023252487183],
+        type: 'point',
+        id: 'night school',
+        title: '進修部',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03795766946733, 121.43111228942873],
+        type: 'point',
+        id: 'old medical',
+        title: '舊醫學大樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037549402677048, 121.4323353767395],
+        type: 'point',
+        id: 'gi gen building',
+        title: '積健樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.037141134527882, 121.43393397331239],
+        type: 'point',
+        id: 'education collage',
+        title: '教育學院',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.036091295904694, 121.43428802490233],
+        type: 'point',
+        id: 'literature library',
+        title: '公博樓',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03517754016007, 121.43322587013245],
+        type: 'point',
+        id: 'clothing',
+        title: '織品',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [25.03433182399113, 121.43403053283691],
+        type: 'point',
+        id: 'fu circle',
+        title: '輔園',
+        annotationImage: {
+          source: { uri: 'cat' },
+          height: 30,
+          width: 15
+        }
+      }, {
+        coordinates: [friendLatitude, friendLongtitude],
+        type: 'point',
+        id: 'friend',
+        title: friendName,
+        subtitle: '感應到上次在此出沒 ...',
+        annotationImage: {
+          source: { uri: 'friendm' },
+          height: 30,
+          width: 30
+        }
+      },
+      ]
+    });
+  }
+  else;
+  //好友點 藉由尋找的btn觸發
+  // if(friendLatitude != 0 && friendLongtitude !=0) {
+  //   this.state = {
+  //     annotations: [ ...this.state.annotations, {
+  //       coordinates: [friendLatitude, friendLongtitude],
+  //       type: 'point',
+  //       id: 'friend',
+  //       title: friendName,
+  //       subtitle: '感應到上次在此出沒 ...',
+  //       annotationImage: {
+  //         source: { uri: 'friendm' },
+  //         height: 30,
+  //         width: 30
+  //       }
+  //     },
+  //     ]
+  //   };
+  // }
+
+};
+
+  // updateMarker2 = () => {
+  //   // Treat annotations as immutable and use .map() instead of changing the array
+  //   this.setState({
+  //     annotations: this.state.annotations.map(annotation => {
+  //       if (annotation.id !== 'marker2') { return annotation; }
+  //       return {
+  //         coordinates: [40.714541341726175,-74.00579452514648],
+  //         'type': 'point',
+  //         title: 'New Title!',
+  //         subtitle: 'New Subtitle',
+  //         annotationImage: {
+  //           source: { uri: 'cat' },
+  //           height: 25,
+  //           width: 25
+  //         },
+  //         id: 'marker2'
+  //       };
+  //     })
+  //   });
+  // };
+
+  removeMarker = () => {
+    this.setState({
+      annotations: this.state.annotations.filter(a =>  {
+
+        if(a.id !== 'small Paris') //{ return a; }
+        if(a.id !== 'fu circle')
+        if(a.id !== 'clothing')
+        if(a.id !== 'literature library')
+        if(a.id !== 'education collage')
+        if(a.id !== 'gi gen building')
+        if(a.id !== 'old medical')
+        if(a.id !== 'night school')
+        if(a.id !== 'FAHY')
+        if(a.id !== 'social technology')
+        if(a.id !== 'shan yen building')
+        if(a.id !== 'icecream')
+        if(a.id !== 'College Of Human Ecology')
+        if(a.id !== 'wind slide square')
+        if(a.id !== 'guo si building')
+        if(a.id !== 'people circle')
+        if(a.id !== 'lo yell la')
+        if(a.id !== 'forgein language')
+        if(a.id !== 'yee may girl dorm')
+        if(a.id !== 'broadcast collage')
+        if(a.id !== 'center beautiful building')
+        if(a.id !== 'lee ma do')
+        if(a.id !== 'heart circle')
+        if(a.id !== 'hundred')
+        if(a.id !== 'Vienna')
+        if(a.id !== 'true beautiful')
+        if(a.id !== 'art collage')
+        if(a.id !== 'literature collage')
+        if(a.id !== 'literature circle')
+        if(a.id !== 'law')
+        if(a.id !== 'go boy dorm')
+        if(a.id !== 'couple pull')
+        if(a.id !== 'building of su')
+        if(a.id !== 'lee circle')
+        if(a.id !== 'yee true girl dorm')
+          return a;
       })
-    });
-  };
+    })
+    
+      //annotations: this.state.annotations.filter(a => a.id !== 'FAHY' )
 
-  removeMarker2 = () => {
-    this.setState({
-      annotations: this.state.annotations.filter(a => a.id !== 'marker2')
-    });
   };
 
   render() {
     StatusBar.setHidden(true);
     return (
       <View style={styles.container}>
+        <View style={styles.top}>
+          <View style={styles.title}>
+            <Text style={styles.text}>迷霧森林</Text>
+          </View>
+        </View>
+
         <MapView
           ref={map => { this._map = map; }}
           style={styles.map}
@@ -815,129 +2432,135 @@ export  default  class  MapW  extends  Component {
           onLongPress={this.onLongPress}
           onTap={this.onTap}
         />
-      <ScrollView style={styles.scrollView}>
-        {this._renderButtons()}
-      </ScrollView>
+
+      <View style={styles.bottom}>
+          <View style={styles.btn}>
+            <TouchableOpacity style={styles.button} onPress={this.addNewMarkers.bind(this)}>
+              <View style={styles.btn}>
+               <Text>　　尋找　</Text>
+              </View>
+              <View style={styles.btn}>
+                <Image style={styles.dot} source={{uri:dot}} />
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.cnt}>
+            <TouchableOpacity>
+              <View style={styles.cnt}>
+                <Text style={styles.cnt_text}>{this._renderCounts()}</Text>
+              </View>
+            </TouchableOpacity>
+          </View> 
+          <View style={styles.newflag}>
+            <TouchableOpacity style={styles.flag_button} onPress={this._pressButton.bind(this)}>
+              <View style={styles.newflag}>
+                <Text>　留下足跡 ...　</Text>
+              </View>
+            </TouchableOpacity>
+          </View> 
       </View>
+      <View style={styles.tab}>
+      </View>
+    </View>
+
+    );
+  }
+  
+  _renderCounts() {
+    return (
+      <Text>
+        {count}
+      </Text>
     );
   }
 
-  _renderButtons() {
-    return (
-      <View>
-        <Text onPress={() => this._map && this._map.setDirection(0)}>
-          Set direction to 0
-        </Text>
-        <Text onPress={() => this._map && this._map.setZoomLevel(6)}>
-          Zoom out to zoom level 6
-        </Text>
-        <Text onPress={() => this._map && this._map.setCenterCoordinate(48.8589, 2.3447)}>
-          Go to Paris at current zoom level {parseInt(this.state.currentZoom)}
-        </Text>
-        <Text onPress={() => this._map && this._map.setCenterCoordinateZoomLevel(35.68829, 139.77492, 14)}>
-          Go to Tokyo at fixed zoom level 14
-        </Text>
-        <Text onPress={() => this._map && this._map.easeTo({ pitch: 30 })}>
-          Set pitch to 30 degrees
-        </Text>
-        <Text onPress={this.addNewMarkers}>
-          Add new marker
-        </Text>
-        <Text onPress={this.updateMarker2}>
-          Update marker2
-        </Text>
-        <Text onPress={() => this._map && this._map.selectAnnotation('marker1')}>
-          Open marker1 popup
-        </Text>
-        <Text onPress={() => this._map && this._map.deselectAnnotation()}>
-          Deselect annotation
-        </Text>
-        <Text onPress={this.removeMarker2}>
-          Remove marker2 annotation
-        </Text>
-        <Text onPress={() => this.setState({ annotations: [] })}>
-          Remove all annotations
-        </Text>
-        <Text onPress={() => this._map && this._map.setVisibleCoordinateBounds(40.712, -74.227, 40.774, -74.125, 100, 0, 0, 0)}>
-          Set visible bounds to 40.7, -74.2, 40.7, -74.1
-        </Text>
-        <Text onPress={() => this.setState({ userTrackingMode: Mapbox.userTrackingMode.followWithHeading })}>
-          Set userTrackingMode to followWithHeading
-        </Text>
-        <Text onPress={() => this._map && this._map.getCenterCoordinateZoomLevel((location)=> {
-            console.log(location);
-          })}>
-          Get location
-        </Text>
-        <Text onPress={() => this._map && this._map.getDirection((direction)=> {
-            console.log(direction);
-          })}>
-          Get direction
-        </Text>
-        <Text onPress={() => this._map && this._map.getBounds((bounds)=> {
-            console.log(bounds);
-          })}>
-          Get bounds
-        </Text>
-        <Text onPress={() => {
-            Mapbox.addOfflinePack({
-              name: 'test',
-              type: 'bbox',
-              bounds: [0, 0, 0, 0],
-              minZoomLevel: 0,
-              maxZoomLevel: 0,
-              metadata: { anyValue: 'you wish' },
-              styleURL: Mapbox.mapStyles.dark
-            }).then(() => {
-              console.log('Offline pack added');
-            }).catch(err => {
-              console.log(err);
-            });
-        }}>
-          Create offline pack
-        </Text>
-        <Text onPress={() => {
-            Mapbox.getOfflinePacks()
-              .then(packs => {
-                console.log(packs);
-              })
-              .catch(err => {
-                console.log(err);
-              });
-        }}>
-          Get offline packs
-        </Text>
-        <Text onPress={() => {
-            Mapbox.removeOfflinePack('test')
-              .then(info => {
-                if (info.deleted) {
-                  console.log('Deleted', info.deleted);
-                } else {
-                  console.log('No packs to delete');
-                }
-              })
-              .catch(err => {
-                console.log(err);
-              });
-        }}>
-          Remove pack with name 'test'
-        </Text>
-        <Text>User tracking mode is {this.state.userTrackingMode}</Text>
-      </View>
-    );
-  }
 }
 
-const styles = StyleSheet.create({
+var styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'stretch'
+    flexDirection: 'column',
+    backgroundColor:　'#F0FFF0', 
   },
-  map: {
-    flex: 1
-  },
-  scrollView: {
-    flex: 1
-  }
+    top: {
+      flex: .125,
+      flexDirection: 'row',
+    },
+      title: {
+        flex: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+    box: {
+      flex: 9,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+      text: {
+        fontSize: 20,
+        textAlign: 'center',
+        margin: 10,
+        fontWeight: 'bold',
+        color: '#000',
+      },
+    map: {
+      flex: .75,
+    },
+    bottom: {
+      flex: .125,
+      flexDirection: 'row',
+    },
+      btn: {
+        flex: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+       button: {
+        flexDirection: 'row',
+        backgroundColor: '#dd99ff',
+        justifyContent: 'center',
+        borderRadius: 4,
+      },      
+        btn_text: {
+          fontSize: 20,
+          margin: 10,
+          fontWeight: 'bold',
+          color: '#000',
+        },
+        dot: {
+          width: 30,
+          height: 30,
+          resizeMode: 'contain',
+        },
+      cnt: {
+        flex: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+        cnt_text: {
+          fontSize: 20,
+          textAlign: 'center',
+          margin: 10,
+          fontWeight: 'bold',
+          color: '#000',
+        },
+      newflag: {
+        flex: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+       flag_button: {
+        flexDirection: 'row',
+        backgroundColor: '#ffbb99',
+        justifyContent: 'center',
+        borderRadius: 4,
+        height: 32,
+      },
+    tab: {
+      flex: .125,
+      backgroundColor:'#F0FFF0',
+    },
 });
 

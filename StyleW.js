@@ -16,6 +16,9 @@ import {
 import Firebase from "firebase";
 
 import Main from './Main';
+import config from './config.js';
+
+var user = config.user;
 
 export  default  class  StyleW  extends  Component {
 
@@ -23,7 +26,7 @@ export  default  class  StyleW  extends  Component {
     super(props);
     var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
     //var myFirebaseRef = new Firebase('https://ft-friends.firebaseio.com/');
-    this.itemsRef = myFirebaseRef.child('user/yuko99/self'); // child *********
+    this.itemsRef = myFirebaseRef.child('user/' + user + '/self'); // child *********
 
     this.state= {
       todoSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2})
