@@ -12,6 +12,7 @@
     "react-native": "^0.32.0",
     "react-native-animatable": "^0.6.1",
     "react-native-code-push": "^1.14.6-beta",
+    "react-native-confetti": "0.0.4",
     "react-native-facebook-login": "^1.4.0",
     "react-native-linear-gradient": "^1.5.12",
     "react-native-mapbox-gl": "^5.0.0",
