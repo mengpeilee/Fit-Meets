@@ -23,6 +23,7 @@ var user = config.user;
 var userName;
 var newfriend;
 var newfriendName;
+var eachother;
 
  export default class SetUp extends React.Component {
 
@@ -73,13 +74,23 @@ var newfriendName;
 
     });
 
+    this.itemsRefeachother = myFirebaseRef.child('user/' + newfriend + '/friend/' + user +'/eachother').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (did we are friend ?) : ' + snapshot.val()); // *************************************************
+      eachother = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
     this.itemsRefMake = myFirebaseRef.child('user/' + user + '/friend/'); // _makeFriend()
 
     this.itemsRefMakeFriend = myFirebaseRef.child('user/' + user + '/friend/' + newfriend); // _makeFriend()
 
     this.itemsRefRefuseFriend = myFirebaseRef.child('user/' + user + '/newfriend'); // _refuseFriend()
 
-
+    this.itemsRefeachotherof = myFirebaseRef.child('user/' + newfriend + '/friend/' + user); // *************************
 
     this.items = [];
 
@@ -95,9 +106,26 @@ var newfriendName;
 
    _makeFriend() {
 
-        this.itemsRefMakeFriend.set({
-          userName: newfriendName,
-        });
+        if(eachother == false)
+        {
+          this.itemsRefMakeFriend.set({
+            userID: newfriend,
+            userName: newfriendName,
+            eachother: true,
+          });
+
+          this.itemsRefeachotherof.update({
+            eachother: true,
+          });
+        }
+        else
+        {
+          this.itemsRefMakeFriend.set({
+            userID: newfriend,
+            userName: newfriendName,
+            eachother: false,
+          });
+        }
 
         this.itemsRefRefuseFriend.update({
           exist: false,

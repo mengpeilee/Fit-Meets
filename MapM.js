@@ -149,13 +149,43 @@ export  default  class  MapM  extends  Component {
     //     longtitude: 0,  
     //     latitude: 0,      
     // });
+
+    setInterval(() => {
+      this.setState({ showText: !this.state.showText })
+
+      if(Math.abs(userLatitude-newfriendLatitude)<0.00025 && Math.abs(userLongtitude-newfriendLongtitude)<0.00016) {
+      if(newfriendmission1) {
+        if(newfriendmission2) {
+
+          this.itemsRefUserNF.update({
+              exist: true, 
+              newfriendID: newfriend,
+              newfriendName: newfriendName,
+              mission: false,
+          });
+
+          this.itemsRefNFU.update({
+              exist: true, 
+              newfriendID: user,
+              newfriendName: userName,
+              mission: false,
+          });
+
+          alert(" 有人怦然心跳地經過你喲 <3 \n 去悄悄話交流看看吧  ~~~");
+          
+        }
+      }
+    }
+
+    }, 10000);
     
   }
 
   _pressButton() {
         const { navigator } = this.props;
-        // if(count > 4)
-        // {
+        if(count > 4)
+        {
+          count =0;
           if(navigator) {
               navigator.push({
                   name: 'NewFlag',
@@ -167,11 +197,11 @@ export  default  class  MapM  extends  Component {
                   }            
               })
           }
-        // }
-        // else
-        // {
-        //   alert("至少要收集 5 隻黑貓哦 !");
-        // }
+        }
+        else
+        {
+          alert("至少要收集 5 支掃叟哦 !");
+        }
   }
 
   state = {
@@ -874,30 +904,32 @@ export  default  class  MapM  extends  Component {
       });
     }
     
-    if(Math.abs(userLatitude-newfriendLatitude)<0.00025 && Math.abs(userLongtitude-newfriendLongtitude)<0.00015) {
-      if(newfriendmission1) {
-        if(newfriendmission2) {
+    // if(Math.abs(userLatitude-newfriendLatitude)<0.00025 && Math.abs(userLongtitude-newfriendLongtitude)<0.00015) {
+    //   if(newfriendmission1) {
+    //     if(newfriendmission2) {
 
-          this.itemsRefUserNF.update({
-              exist: true, 
-              newfriendID: newfriend,
-              newfriendName: newfriendName,
-              mission: false,
-          });
+    //       this.itemsRefUserNF.update({
+    //           exist: true, 
+    //           newfriendID: newfriend,
+    //           newfriendName: newfriendName,
+    //           mission: false,
+    //       });
 
-          this.itemsRefNFU.update({
-              exist: true, 
-              newfriendID: user,
-              newfriendName: userName,
-              mission: false,
-          });
+    //       this.itemsRefNFU.update({
+    //           exist: true, 
+    //           newfriendID: user,
+    //           newfriendName: userName,
+    //           mission: false,
+    //       });
 
-          alert(" 有人怦然心跳地經過你喲 <3 \n 去悄悄話交流看看吧  ~~~");
-        }
-      }
-    }
+    //       alert(" 有人怦然心跳地經過你喲 <3 \n 去悄悄話交流看看吧  ~~~");
+          
+    //     }
+    //   }
+    // }
 
   };
+
   //點擊marker(地圖上的貓或掃叟)做距離判斷及消失與否
   onOpenAnnotation = (annotation) => {
     if(annotation.id !== 'friend'  && Math.abs(annotation.latitude-userLatitude)<0.0005 && Math.abs(annotation.longitude-userLongtitude)<0.00033){
@@ -1127,7 +1159,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -1264,7 +1296,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -1401,7 +1433,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -1538,7 +1570,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -1675,7 +1707,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -1812,7 +1844,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -1949,7 +1981,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -2086,7 +2118,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -2223,7 +2255,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }
@@ -2360,7 +2392,7 @@ export  default  class  MapM  extends  Component {
         title: friendName,
         subtitle: '感應到上次在此出沒 ...',
         annotationImage: {
-          source: { uri: 'friendm' },
+          source: { uri: 'friendw' },
           height: 30,
           width: 30
         }

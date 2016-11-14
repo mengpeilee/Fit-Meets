@@ -16,18 +16,21 @@ import {
   Navigator,
 } from 'react-native';
 
+import Confetti from "react-native-confetti"; //五花彩屑
 import Firebase from "firebase";
 import config from './config.js';
 
+var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
 var user = config.user;
-var userName;
+var eachother;
+var friend_bpm = 0;
 
 export  default  class  FriendChat  extends  Component {
 
   constructor(props){
     super(props);
     //var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
-    var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
+    //var myFirebaseRef = new Firebase('https://fittogether.firebaseio.com/');
     // myFirebaseRef.set({
     //   title: 'Hello',
     //   author: 'Yuko'
@@ -52,6 +55,17 @@ export  default  class  FriendChat  extends  Component {
 
     });
 
+    this.itemsRefeachother = myFirebaseRef.child('user/' + user + '/friend/' + this.props.friendID +'/eachother').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (did we are friend ?) : ' + snapshot.val()); // *************************************************
+      eachother = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
+
     this.items = [];
   }
 
@@ -70,10 +84,24 @@ export  default  class  FriendChat  extends  Component {
   }
 
   componentDidMount() {
-    this.setState({
+
+    if(eachother)
+    {
+      this.setState({
         friendID: this.props.friendID,  
         friendName: this.props.friendName,   
-    });
+      });      
+    }
+
+    else
+    {
+      this.setState({
+        friendID: this.props.friendID,  
+        friendName: "......",   
+      }); 
+    }
+
+    
 
     this.itemsRef.on('child_added', (dataSnapshot) => {
       var ds = dataSnapshot.val();
@@ -86,6 +114,7 @@ export  default  class  FriendChat  extends  Component {
           });
         }
     });
+
   }
 
   componentWillMount() {
@@ -105,6 +134,25 @@ export  default  class  FriendChat  extends  Component {
         newTodo: ''
       });
     }
+
+    this.itemsRefConfetti = myFirebaseRef.child('user/' + this.props.friendID + '/self/bpm').on("value", function(snapshot) {
+      //alert(snapshot.val());  
+      console.log('what I get from firebase (friend bpm) : ' + snapshot.val());
+      friend_bpm = snapshot.val();
+
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+
+    });
+
+    if(friend_bpm > 89)
+    {
+      if(this._confettiView)
+      {
+        this._confettiView.startConfetti();
+      }
+    }
+
   }
 
   removeTodo(rowData) {
@@ -145,6 +193,7 @@ export  default  class  FriendChat  extends  Component {
           </View>
         </View>
         <View style={styles.list}>
+          <Confetti ref={(node) => this._confettiView = node} />
           <ListView
           dataSource={this.state.todoSource}
           renderRow={this.renderRow.bind(this)} 

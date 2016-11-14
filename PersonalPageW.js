@@ -24,10 +24,12 @@ import AchievementW from './AchievementW';
 //import bpm from './img/personal/bpmFast.gif';
 //import bpm from './img/personal/bpmFaster.gif';
 
-var bpm = require('./img/personal/bpmNormal.gif')
-
+var bpm = require('./img/personal/bpmNormal.gif');
+var bpmNum = 0;
+var userLocaltoken;
 var user = config.user;
 var userName;
+var cnt = 0;
 
 function OAuth(client_id, cb) {
 
@@ -45,7 +47,11 @@ function OAuth(client_id, cb) {
 
     const userid = query.user_id
 
+    userLocaltoken = query.access_token;
+    console.log("What Fitbit access token I got : " + userLocaltoken);
+
     cb(query.access_token);
+    console.log("What  cb(query.access_token)  I got : " + cb(query.access_token));
   }
 
 
@@ -78,6 +84,7 @@ function getDistance(access_token) {
     return distance.json()
   }).then((distance) => {
     PersonalPageW.setStateDistance(Number(distance['activities-tracker-distance'][0]['value']).toFixed(2));
+    // PersonalPageW.setStateDistance(0.75);
   }).catch((err) => {
     console.error('Error: ', err);
   });
@@ -98,6 +105,7 @@ function getSteps(access_token) {
     return steps.json()
   }).then((steps) => {
     PersonalPageW.setStateStep(steps['activities-tracker-steps'][0]['value']);
+    // PersonalPageW.setStateStep(1024);
   }).catch((err) => {
     console.error('Error: ', err);
   });
@@ -120,14 +128,15 @@ function getHeartrate(access_token) {
     return heartrate.json()
   }).then((heartrate) => {
     if([heartrate['activities-heart-intraday']['dataset'].length] == 0)
-      {
-        PersonalPageW.setStateHeart("loading");
-        alert("記得開藍芽讓 Fitbit 上傳數據哦 :)");
-      }
+    {
+      PersonalPageW.setStateHeart("loading");
+      alert("記得開藍芽讓 Fitbit 上傳數據哦 :)");
+    }
     else 
-      {
-        PersonalPageW.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
-      }
+    {
+      PersonalPageW.setStateHeart(heartrate['activities-heart-intraday']['dataset'][heartrate['activities-heart-intraday']['dataset'].length - 1]['value']);
+      // PersonalPageW.setStateHeart(142);
+    }
   }).catch((err) => {
     console.error('Error: ', err);
   });
@@ -157,12 +166,37 @@ export  default  class  PersonalPageW  extends  Component {
 
     });
 
+    this.itemsRefbpm = myFirebaseRef.child('user/' + user + '/self'); // _makeFriend()
+
     // Toggle the state every second
     setInterval(() => {
       this.setState({ showText: !this.state.showText })
-      // OAuth(config.client_id, getDistance);
-      // OAuth(config.client_id, getSteps);
-      // OAuth(config.client_id, getHeartrate);
+
+      if(cnt == 0)
+      {
+        getSteps(userLocaltoken);
+        getDistance(userLocaltoken);
+        getHeartrate(userLocaltoken);
+      }
+
+      else if(cnt%60 == 0)
+      {
+        getSteps(userLocaltoken);
+        getDistance(userLocaltoken);
+        getHeartrate(userLocaltoken); 
+      }
+
+      else;
+
+      if(bpmNum > 0)
+      {
+        this.itemsRefbpm.update({
+          bpm: bpmNum,
+        });
+      }
+
+      ++cnt;
+
     }, 1000);
 
     this.items = [];
@@ -198,6 +232,9 @@ export  default  class  PersonalPageW  extends  Component {
     else
       bpm = require('./img/personal/bpmNormal.gif');
 
+    if(a != "loading")
+      bpmNum = a;
+
     this.state.heart = a;
   }
 
@@ -223,6 +260,12 @@ export  default  class  PersonalPageW  extends  Component {
         }
   }
 
+  //多call的
+  componentWillMount() {
+    OAuth(config.client_id, getDistance);
+    OAuth(config.client_id, getSteps);
+    OAuth(config.client_id, getHeartrate);
+  }
 
   componentDidMount() {
     this.itemsRef.on('child_added', (dataSnapshot) => {
@@ -238,9 +281,9 @@ export  default  class  PersonalPageW  extends  Component {
         doAvatar: this.state.doAvatar.cloneWithRows(this.items)
       });
     });
-    OAuth(config.client_id, getDistance);
-    OAuth(config.client_id, getSteps);
-    OAuth(config.client_id, getHeartrate);
+    // OAuth(config.client_id, getDistance);
+    // OAuth(config.client_id, getSteps);
+    // OAuth(config.client_id, getHeartrate);
   }
 
   render() {
