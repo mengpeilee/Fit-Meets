@@ -14,6 +14,8 @@
 
 ###Demo影片：https://youtu.be/h5iO0Kkj8YY
 
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/h5iO0Kkj8YY/0.jpg)](http://www.youtube.com/watch?v=h5iO0Kkj8YY)
+
 
 ##Fit & Meets是一款交友運動APP：
 - 幫助你養成運動習慣
