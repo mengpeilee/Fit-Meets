@@ -17,7 +17,7 @@
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/h5iO0Kkj8YY/0.jpg)](http://www.youtube.com/watch?v=h5iO0Kkj8YY)
 
 
-##Fit & Meets是一款交友運動APP：
+## Fit & Meets是一款交友運動APP：
 - 幫助你養成運動習慣
 - 將心率分析融入進交友中
 - Location Based Service
@@ -35,15 +35,15 @@
 
 <img src="http://i.imgur.com/Vr4S0U7.png" alt="URL Scheme" width="243" height="408" border="50" /> 
 
-##Location Based Service
+## Location Based Service
 
-###何謂 LBS ?
+### 何謂 LBS ?
 
 利用定位技術確定行動通訊設備的位置，並提供各種與位置相關應用的加值服務。
 
 又稱為適地性服務(Location Based Services) 著名應用: Pokemon Go
 
-###Fit & Meets：
+### Fit & Meets：
 - 使得虛擬遊戲不再只侷限在虛擬中
 - 虛實整合的遊戲能增加大家外出運動的誘因
 
@@ -59,7 +59,7 @@ fitbit為全球市佔率第一的穿戴式裝置品牌，根據2016的統計，f
 <img src="http://i.imgur.com/3pUqtDz.png" alt="URL Scheme" width="243" height="408" border="50" /> 
 <img src="http://i.imgur.com/F2W41EA.png" alt="URL Scheme" width="243" height="408" border="50" />
 
-##未來展望
+## 未來展望
 
 - 強化成就系統
 - 對心率有更多應用及分析
