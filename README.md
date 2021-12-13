@@ -1,69 +1,68 @@
-# Fit & Meets-結合穿戴式裝置之適地性交友APP
-在做畢業專題發想時，發現身邊許多單身朋友都對交友軟體有興趣，並且我們在現行的交友APP上發現兩個缺點：
+# Fit & Meets- A gamified dating app that combines wearable devices and location based service
+We found that many single friends around me are interested in dating-app. 
+However, we discovered there are two main problems in dating-apps on the current market. 
 
-1. 雖然能搜尋附近朋友，但也還是侷限在虛擬上
-2. 使用者黏度低，當要到聯絡方式後就易脫離平台
+1. Although dating-apps can search for nearby friends, it is still limited to virtual instead of real-world.
+2. Users are easy to leave the service when they have gotten the contact information.
 
-所以我們決定畢業專題做一款校園交友APP，利用這幾個特色：
+Thus, we decided to develop a campus dating app for our graduation project, using the following features:
 
-- 運動與交友的結合
-- 打破虛實的交友任務
-- 穿戴式裝置心率的應用
+- Combining exercise and matching feature.
+- The task and game system motivate people to go outside.
+- Using wearanle device to decect heart rate and combining it in the game.
 
-試著解決交友軟體上的缺點，並期望校園中不同學院的學生們能走出自己的學院，認識更多異性，或是激發更多運動動機。
 
-### Demo影片：https://youtu.be/h5iO0Kkj8YY
+We tried to solve the shortcomings of the existing dating-app, and motivated students to go outside and know each other.
+
+### Demo Viedo：https://youtu.be/h5iO0Kkj8YY
 
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/h5iO0Kkj8YY/0.jpg)](http://www.youtube.com/watch?v=h5iO0Kkj8YY)
 
 
-## Fit & Meets是一款交友運動APP：
-- 幫助你養成運動習慣
-- 將心率分析融入進交友中
-- Location Based Service
-- Avatar概念設計讓你身歷其境
-- 可以認識校園中不同學院的異性朋友
+## Fit & Meets is a dating-app and helps you do exercise at the same time：
+- Help you develop exercise habits.
+- Integrate heart rate analysis into the matching feature.
+- Location Based Service.
+- RPG design allows you to deep experience it.
 
 <img src="http://i.imgur.com/9O9hW28.png" alt="URL Scheme" width="243" height="408" border="50" /> 
 <img src="http://i.imgur.com/pLMnN4i.png" alt="URL Scheme" width="243" height="408" border="50" /> 
 
-##我們跟其他交友軟體不一樣的地方？ 虛實互動的交友配對
+## Where are we different from other dating-apps ? 
 
-- 透過打卡來進行配對
-- 既能找到現在在附近的朋友又能找到彼此的"共同點"
-- 如果雙方願意，成為好友後能顯示對方位置，打破只在虛擬上的交友互動
+- You can match people in real-world through our gamified-oriented system, just like Pokemon Go.
+- Not only know new friends who are now nearby, but also find each other's "common place".
+- Privacy Protection: display each other's location only if you both agree with it.
 
 <img src="http://i.imgur.com/Vr4S0U7.png" alt="URL Scheme" width="243" height="408" border="50" /> 
 
 ## Location Based Service
 
-### 何謂 LBS ?
+### What is Location Based Service ?
 
-利用定位技術確定行動通訊設備的位置，並提供各種與位置相關應用的加值服務。
+Location-based services combine geospatial technologies, information and communication technologies, and the Internet to provide targeted information to individuals based on their geographic location in real-time.
 
-又稱為適地性服務(Location Based Services) 著名應用: Pokemon Go
+Famous Application: Pokemon Go, Ingress
 
 ### Fit & Meets：
-- 使得虛擬遊戲不再只侷限在虛擬中
-- 虛實整合的遊戲能增加大家外出運動的誘因
+- Motivate people to use the app to get outside and meet people in the real world!
+- Help people develop exercise habits through our gamified-oriented system.
 
 <img src="http://i.imgur.com/PoEWh8z.png" alt="URL Scheme" width="243" height="408" border="50" /> 
 <img src="http://i.imgur.com/7kUeoi8.png" alt="URL Scheme" width="243" height="408" border="50" />
 
-## Ftibit手環心率應用
+## Heart Rate Detection with Fitbit Watch:
 
-fitbit為全球市佔率第一的穿戴式裝置品牌，根據2016的統計，fitbit在美國市佔率高達61.7%，是Apple Watch的9倍。
-
-我們將心率應用在聊天室裡，聊天室若男女其中一方的心跳大於平均的10bpm，會從上而下灑櫻花的增添浪漫的氣氛。
+We apply the heart rate detection into the chat room. If people’s heart rate are greater than 10 bpm of the average, cherry blossom rain will be sprinkled over the chat room to enhance a romantic atmosphere.
 
 <img src="http://i.imgur.com/3pUqtDz.png" alt="URL Scheme" width="243" height="408" border="50" /> 
 <img src="http://i.imgur.com/F2W41EA.png" alt="URL Scheme" width="243" height="408" border="50" />
 
-## 未來展望
+## Other Features:
 
-- 強化成就系統
-- 對心率有更多應用及分析
-- 增加自訂運動目標達成率讓人物有胖瘦功能
+- Task & Reward Systems
+- Health analysis with heart rate 
+- Color Avatars
 
 <img src="http://i.imgur.com/ChnR1wI.png" alt="URL Scheme" width="243" height="408" border="50" />
 <img src="http://i.imgur.com/roJCUBO.png" /> 
