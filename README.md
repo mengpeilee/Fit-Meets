@@ -9,7 +9,7 @@ Thus, we decided to develop a campus dating app for our graduation project, usin
 
 - Combining exercise and matching feature.
 - The task and game system motivate people to go outside.
-- Using wearanle device to decect heart rate and combining it in the game.
+- Using wearable device to decect heart rate and combining it in the game.
 
 
 We tried to solve the shortcomings of the existing dating-app, and motivated students to go outside and know each other.
